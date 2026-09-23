@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -11,6 +12,8 @@
       android:theme="@style/AppTheme"
       android:usesCleartextTraffic="${usesCleartextTraffic}"
       android:supportsRtl="true">
+
+      <!-- Main Activity -->
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
@@ -23,5 +26,20 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+
+      <!-- Home Screen Widget Provider -->
+      <receiver
+        android:name=".widget.QuoteWidgetProvider"
+        android:exported="true"
+        android:label="@string/app_name">
+        <intent-filter>
+            <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            <action android:name="com.motiva.dailyquotes.ACTION_REFRESH_QUOTE" />
+        </intent-filter>
+        <meta-data
+            android:name="android.appwidget.provider"
+            android:resource="@xml/quote_widget_info" />
+      </receiver>
+
     </application>
 </manifest>

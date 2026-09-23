@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/widget_background"
+    android:padding="16dp"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/widget_app_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="✦ MOTIVA"
+        android:textColor="#9F7AEA"
+        android:textSize="9sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.15"
+        android:layout_marginBottom="6dp"
+        android:fontFamily="sans-serif-medium" />
+
+    <TextView
+        android:id="@+id/widget_quote_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Keep moving forward, one step at a time."
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:textStyle="italic"
+        android:gravity="center"
+        android:maxLines="3"
+        android:ellipsize="end"
+        android:lineSpacingMultiplier="1.4"
+        android:fontFamily="sans-serif" />
+
+    <TextView
+        android:id="@+id/widget_author_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="— Motiva"
+        android:textColor="#C4B5FD"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        android:layout_marginTop="6dp"
+        android:fontFamily="sans-serif-medium" />
+
+</LinearLayout>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/widget_poster_frame"
+    android:padding="20dp">
+
+    <!-- Top header row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/widget_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="✦ DAILY MOTIVATION"
+            android:textColor="#A78BFA"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.15"
+            android:fontFamily="sans-serif-medium" />
+
+        <TextView
+            android:id="@+id/widget_brand"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MOTIVA"
+            android:textColor="#8B5CF6"
+            android:textSize="9sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.2"
+            android:fontFamily="sans-serif-condensed" />
+    </LinearLayout>
+
+    <!-- Divider -->
+    <ImageView
+        android:id="@+id/widget_divider"
+        android:layout_width="40dp"
+        android:layout_height="2dp"
+        android:background="#4DFFFFFF"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="12dp"
+        android:importantForAccessibility="no" />
+
+    <!-- Clickable Content Area -->
+    <LinearLayout
+        android:id="@+id/widget_content_area"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_vertical">
+
+        <!-- Quote text -->
+        <TextView
+            android:id="@+id/widget_quote_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="“YOU CAN DO IT.”"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-black"
+            android:maxLines="7"
+            android:ellipsize="end"
+            android:lineSpacingMultiplier="1.25" />
+
+    </LinearLayout>
+
+    <!-- Author & Reload Button row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:id="@+id/widget_author_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="— Motiva"
+            android:textColor="#94A3B8"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium"
+            android:singleLine="true"
+            android:ellipsize="end" />
+
+        <ImageView
+            android:id="@+id/widget_btn_refresh"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="8dp"
+            android:background="@drawable/widget_refresh_button_bg"
+            android:src="@drawable/ic_refresh"
+            android:scaleType="fitCenter"
+            android:contentDescription="Reload Quote" />
+    </LinearLayout>
+
+</LinearLayout>
