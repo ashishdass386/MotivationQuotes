@@ -1,4 +1,9 @@
 {
   "name": "Motiva",
-  "displayName": "Motiva"
+  "displayName": "Motiva",
+  "extra": {
+    "eas": {
+      "projectId": "0484ec48-d522-4eb3-bcd8-a117b6dd59cc"
+    }
+  }
 }
