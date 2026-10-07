@@ -424,7 +424,7 @@ export const WIDGET_TEMPLATES: QuoteTemplate[] = [
       position: 'bottom-right',
       style: 'small',
       prefix: '',
-      suffix: ' · MOTIVA',
+      suffix: ' · MOTIQO',
       textColor: '#38BDF8',
     },
     accent: {

@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
 import android.util.Log
@@ -31,7 +32,7 @@ object DailyNotificationManager {
 
     private const val TAG = "DailyNotificationMgr"
     const val CHANNEL_ID = "motiva_daily_quotes_v2"
-    private const val CHANNEL_NAME = "Daily Motivation Quotes"
+    private const val CHANNEL_NAME = "Motiqo Daily Motivation Quotes"
     const val ACTION_DAILY_NOTIFICATION = "com.motiva.dailyquotes.ACTION_DAILY_NOTIFICATION"
 
     private const val PREFS_NAME = "com.motiva.dailyquotes.notification.prefs"
@@ -270,8 +271,8 @@ object DailyNotificationManager {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
 
-            val tagText = if (isTest) "MOTIVA • DAILY REFLECTION" else "DAILY REFLECTION"
-            val title = if (isTest) "Daily Reflection (Preview)" else "Daily Reflection"
+            val tagText = if (isTest) "MOTIQO • DAILY REFLECTION" else "MOTIQO • DAILY REFLECTION"
+            val title = if (isTest) "Motiqo Daily Reflection (Preview)" else "Motiqo Daily Reflection"
             val quoteContent = "“${quote.content.trim()}”"
             val authorName = "— ${quote.author.trim().ifBlank { "Anonymous" }}"
 
@@ -288,8 +289,19 @@ object DailyNotificationManager {
                 setTextViewText(R.id.notif_author, authorName)
             }
 
+            val largeIconBitmap = try {
+                BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher)
+            } catch (_: Exception) {
+                null
+            }
+
             val builder = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification_quote)
+                .apply {
+                    if (largeIconBitmap != null) {
+                        setLargeIcon(largeIconBitmap)
+                    }
+                }
                 .setColor(Color.parseColor("#171717"))
                 .setCustomContentView(collapsedView)
                 .setCustomBigContentView(expandedView)

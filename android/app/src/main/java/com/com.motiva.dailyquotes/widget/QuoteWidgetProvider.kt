@@ -89,7 +89,7 @@ class QuoteWidgetProvider : AppWidgetProvider() {
                 brandColor = Color.parseColor("#475569"),
                 dividerColor = Color.parseColor("#E2E8F0"),
                 refreshButtonBgRes = R.drawable.widget_refresh_btn_light,
-                labelText = "MOTIVA • DAILY",
+                labelText = "MOTIQO • DAILY",
             ),
             "widget_minimal_black" to WidgetTemplateStyle(
                 backgroundRes = R.drawable.widget_bg_minimal_black,
@@ -145,7 +145,7 @@ class QuoteWidgetProvider : AppWidgetProvider() {
                 labelColor = Color.parseColor("#38BDF8"),
                 brandColor = Color.parseColor("#38BDF8"),
                 dividerColor = Color.parseColor("#38BDF8"),
-                labelText = "FOCUS • MOTIVA",
+                labelText = "FOCUS • MOTIQO",
             ),
             "widget_clean_gradient" to WidgetTemplateStyle(
                 backgroundRes = R.drawable.widget_bg_gradient_sunset,

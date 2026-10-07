@@ -107,7 +107,7 @@ export async function getLockScreenTemplate(): Promise<string> {
 }
 
 /**
- * Request system prompt to pin the Motiva widget to the user's home screen.
+ * Request system prompt to pin the Motiqo widget to the user's home screen.
  */
 export async function pinWidgetToHomeScreen(): Promise<boolean> {
   if (!QuoteWidgetModule) {
@@ -122,7 +122,7 @@ export async function pinWidgetToHomeScreen(): Promise<boolean> {
 }
 
 /**
- * Check how many Motiva widgets are currently placed on the device launcher.
+ * Check how many Motiqo widgets are currently placed on the device launcher.
  */
 export async function getInstalledWidgetsCount(): Promise<number> {
   if (!QuoteWidgetModule) {

@@ -780,7 +780,7 @@ export const LOCKSCREEN_TEMPLATES: QuoteTemplate[] = [
       position: 'below',
       style: 'uppercase',
       prefix: '',
-      suffix: ' · MOTIVA',
+      suffix: ' · MOTIQO',
       textColor: '#57534E',
     },
     accent: {

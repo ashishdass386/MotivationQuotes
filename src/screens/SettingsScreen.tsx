@@ -8,6 +8,7 @@ import {
   Linking,
   Switch,
   Alert,
+  Image,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useTheme} from '../theme/ThemeContext';
@@ -135,24 +136,39 @@ export function SettingsScreen({
         {/* About Group */}
         <SectionHeader title="About" />
         <View style={[styles.groupContainer, {borderColor: colors.border}]}>
+          <View style={[styles.aboutBrandHeader, {borderBottomColor: colors.border}]}>
+            <Image
+              source={require('../assets/icon.png')}
+              style={styles.aboutBrandLogo}
+              resizeMode="cover"
+            />
+            <View style={styles.aboutBrandTextCol}>
+              <Text style={[styles.aboutBrandName, {color: colors.textPrimary}]}>
+                Motiqo
+              </Text>
+              <Text style={[styles.aboutBrandTagline, {color: colors.textSecondary}]}>
+                Daily Motivation &amp; Widgets
+              </Text>
+            </View>
+          </View>
           <SettingRow
             label="Version"
             value={APP_VERSION}
           />
           <SettingRow
             label="Privacy Policy"
-            onPress={() => handleOpenLink('https://motiva.app/privacy')}
+            onPress={() => handleOpenLink('https://motiqo.app/privacy')}
           />
           <SettingRow
             label="Terms of Service"
-            onPress={() => handleOpenLink('https://motiva.app/terms')}
+            onPress={() => handleOpenLink('https://motiqo.app/terms')}
             showDivider={false}
           />
         </View>
 
         <View style={styles.footerNote}>
           <Text style={[styles.footerText, {color: colors.textTertiary}]}>
-            MOTIVA · DAILY MOTIVATION & WIDGETS
+            MOTIQO · DAILY MOTIVATION & WIDGETS
           </Text>
         </View>
       </ScrollView>
@@ -176,11 +192,36 @@ const styles = StyleSheet.create({
     letterSpacing: typography.letterSpacing.tight,
   },
   scrollContent: {
-    paddingBottom: spacing[12],
+    paddingBottom: 64,
   },
   groupContainer: {
     borderTopWidth: 1,
     borderBottomWidth: 1,
+  },
+  aboutBrandHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing[6],
+    paddingVertical: spacing[4],
+    borderBottomWidth: 1,
+    gap: spacing[4],
+  },
+  aboutBrandLogo: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+  },
+  aboutBrandTextCol: {
+    flex: 1,
+  },
+  aboutBrandName: {
+    fontSize: typography.sizes.base,
+    fontWeight: '700',
+    letterSpacing: -0.2,
+  },
+  aboutBrandTagline: {
+    fontSize: typography.sizes.xs,
+    marginTop: 2,
   },
   footerNote: {
     alignItems: 'center',

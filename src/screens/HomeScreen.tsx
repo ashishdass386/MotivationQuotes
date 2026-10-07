@@ -7,6 +7,7 @@ import {
   StatusBar,
   TouchableOpacity,
   Alert,
+  Image,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useTheme} from '../theme/ThemeContext';
@@ -62,9 +63,16 @@ export function HomeScreen(): React.JSX.Element {
         {/* Minimal Editorial Header */}
         <View style={styles.header}>
           <View style={styles.mastheadRow}>
-            <Text style={[styles.brandTitle, {color: colors.textPrimary}]}>
-              MOTIVA
-            </Text>
+            <View style={styles.brandTitleContainer}>
+              <Image
+                source={require('../assets/icon.png')}
+                style={styles.brandLogo}
+                resizeMode="cover"
+              />
+              <Text style={[styles.brandTitle, {color: colors.textPrimary}]}>
+                MOTIQO
+              </Text>
+            </View>
             <Text style={[styles.dateText, {color: colors.textTertiary}]}>
               {todayFormatted.toUpperCase()}
             </Text>
@@ -192,7 +200,17 @@ const styles = StyleSheet.create({
   mastheadRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'baseline',
+    alignItems: 'center',
+  },
+  brandTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing[2],
+  },
+  brandLogo: {
+    width: 24,
+    height: 24,
+    borderRadius: borderRadius.sm,
   },
   brandTitle: {
     fontSize: typography.sizes.sm,

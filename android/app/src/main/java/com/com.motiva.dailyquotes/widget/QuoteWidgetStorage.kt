@@ -79,8 +79,8 @@ object QuoteWidgetStorage {
             ?: "YOU CAN DO IT."
 
     fun getQuoteAuthor(context: Context): String =
-        getPrefs(context).getString(KEY_QUOTE_AUTHOR, "Motiva")
-            ?: "Motiva"
+        getPrefs(context).getString(KEY_QUOTE_AUTHOR, "Motiqo")
+            ?: "Motiqo"
 
     fun getQuoteId(context: Context): String =
         getPrefs(context).getString(KEY_QUOTE_ID, "") ?: ""
@@ -102,7 +102,7 @@ object QuoteWidgetStorage {
                 val obj = jsonArray.getJSONObject(i)
                 val id = obj.optString("_id", "$i")
                 val content = obj.optString("content", "")
-                val author = obj.optString("author", "Motiva")
+                val author = obj.optString("author", "Motiqo")
                 if (content.isNotBlank()) {
                     list.add(Triple(id, content, author))
                 }

@@ -146,7 +146,7 @@ export function TemplatePreviewScreen({
       if (!success) {
         Alert.alert(
           'Add Widget Manually',
-          '1. Go to your phone\'s Home Screen.\n2. Long press any empty space.\n3. Tap "Widgets".\n4. Choose "Motiva" to place this widget.',
+          '1. Go to your phone\'s Home Screen.\n2. Long press any empty space.\n3. Tap "Widgets".\n4. Choose "Motiqo" to place this widget.',
         );
       }
     } catch {

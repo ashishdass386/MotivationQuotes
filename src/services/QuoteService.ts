@@ -34,7 +34,7 @@ export async function getDailyQuoteForToday(): Promise<Quote> {
       const quote: Quote = {
         _id: notifQuote.id || `daily-${notifQuote.date}`,
         content: notifQuote.content,
-        author: notifQuote.author || 'Motiva',
+        author: notifQuote.author || 'Motiqo',
         tags: ['Inspirational'],
         length: notifQuote.content.length,
         dateAdded: notifQuote.date,

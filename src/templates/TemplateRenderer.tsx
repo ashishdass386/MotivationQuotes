@@ -373,7 +373,7 @@ export function TemplateRenderer({
             ]}>
             {template.tagline?.toUpperCase() ||
               template.category.toUpperCase() ||
-              'MOTIVA'}
+              'MOTIQO'}
           </Text>
           <Text
             style={[

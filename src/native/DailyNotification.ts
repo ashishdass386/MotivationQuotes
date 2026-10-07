@@ -46,9 +46,9 @@ export async function requestNotificationPermission(): Promise<boolean> {
         return true;
       }
       const status = await PermissionsAndroid.request(permission, {
-        title: 'Daily Motivation Notifications',
+        title: 'Motiqo Notifications',
         message:
-          'Allow Motiva to send you a fresh inspirational quote every morning at 8:30 AM.',
+          'Allow Motiqo to send you a fresh inspirational quote every morning at 8:30 AM.',
         buttonPositive: 'Allow',
         buttonNegative: 'Not now',
       });
