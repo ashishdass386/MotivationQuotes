@@ -1,53 +1,124 @@
 import React from 'react';
-import {Text, View, StyleSheet, Platform} from 'react-native';
+import {Text, StyleSheet, Platform} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useTheme} from '../theme/ThemeContext';
 import {HomeScreen} from '../screens/HomeScreen';
+import {TemplatesScreen} from '../screens/TemplatesScreen';
+import {TemplatePreviewScreen} from '../screens/TemplatePreviewScreen';
 import {SavedQuotesScreen} from '../screens/SavedQuotesScreen';
 import {SettingsScreen} from '../screens/SettingsScreen';
-import {spacing, borderRadius} from '../theme/spacing';
+import {spacing} from '../theme/spacing';
 import {typography} from '../theme/typography';
+import {
+  HomeIcon,
+  TemplatesIcon,
+  BookmarkIcon,
+  SettingsIcon,
+} from '../components/Icons';
 
 export type RootTabParamList = {
   Home: undefined;
+  Templates: undefined;
   Saved: undefined;
   Settings: undefined;
 };
 
-const Tab = createBottomTabNavigator<RootTabParamList>();
-
-const TAB_ICONS: Record<string, {active: string; inactive: string}> = {
-  Home: {active: '✦', inactive: '✧'},
-  Saved: {active: '♥', inactive: '♡'},
-  Settings: {active: '⚙', inactive: '⚙'},
+export type RootStackParamList = {
+  MainTabs: undefined;
+  TemplatePreview: {templateId: string};
 };
 
-function TabIcon({
-  name,
-  focused,
-}: {
-  name: string;
-  focused: boolean;
-}): React.JSX.Element {
+const Tab = createBottomTabNavigator<RootTabParamList>();
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+function MainTabNavigator(): React.JSX.Element {
   const {colors} = useTheme();
-  const icons = TAB_ICONS[name];
+  const insets = useSafeAreaInsets();
+  const bottomPadding = insets.bottom > 0 ? insets.bottom : spacing[2];
+  const barHeight = (Platform.OS === 'android' ? 56 : 50) + bottomPadding;
+
   return (
-    <Text
-      style={{
-        fontSize: focused ? 20 : 18,
-        color: focused ? colors.iconActive : colors.iconInactive,
-      }}>
-      {focused ? icons.active : icons.inactive}
-    </Text>
+    <Tab.Navigator
+      screenOptions={({route}) => ({
+        headerShown: false,
+        tabBarStyle: {
+          backgroundColor: colors.tabBarBackground,
+          borderTopWidth: 1,
+          borderTopColor: colors.tabBarBorder,
+          height: barHeight,
+          paddingBottom: bottomPadding,
+          paddingTop: spacing[2],
+          elevation: 0, // No drop shadow
+        },
+        tabBarIcon: ({focused}) => {
+          const tint = focused ? colors.iconActive : colors.iconInactive;
+          switch (route.name) {
+            case 'Home':
+              return <HomeIcon size={19} color={tint} strokeWidth={focused ? 1.8 : 1.4} />;
+            case 'Templates':
+              return <TemplatesIcon size={18} color={tint} />;
+            case 'Saved':
+              return <BookmarkIcon size={19} color={tint} filled={focused} strokeWidth={focused ? 1.8 : 1.4} />;
+            case 'Settings':
+              return <SettingsIcon size={19} color={tint} strokeWidth={focused ? 1.8 : 1.4} />;
+            default:
+              return null;
+          }
+        },
+        tabBarLabel: ({focused}) => (
+          <Text
+            style={[
+              styles.tabLabel,
+              {
+                color: focused ? colors.iconActive : colors.iconInactive,
+                fontWeight: focused ? '600' : '400',
+              },
+            ]}>
+            {route.name}
+          </Text>
+        ),
+        tabBarHideOnKeyboard: true,
+      })}>
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{tabBarAccessibilityLabel: 'Home tab'}}
+      />
+      <Tab.Screen
+        name="Templates"
+        component={TemplatesScreen}
+        options={{tabBarAccessibilityLabel: 'Templates tab'}}
+      />
+      <Tab.Screen
+        name="Saved"
+        component={SavedQuotesScreen}
+        options={{tabBarAccessibilityLabel: 'Saved quotes tab'}}
+      />
+      <Tab.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{tabBarAccessibilityLabel: 'Settings tab'}}
+      />
+    </Tab.Navigator>
   );
 }
 
+const styles = StyleSheet.create({
+  tabLabel: {
+    fontSize: 10,
+    letterSpacing: 0.3,
+    marginTop: 2,
+  },
+});
+
 export function AppNavigator(): React.JSX.Element {
-  const {colors, isDark} = useTheme();
+  const {colors} = useTheme();
 
   const navigationTheme = {
-    dark: isDark,
+    dark: false,
     colors: {
       primary: colors.primary,
       background: colors.background,
@@ -59,78 +130,23 @@ export function AppNavigator(): React.JSX.Element {
     fonts: {
       regular: {fontFamily: 'sans-serif', fontWeight: '400' as const},
       medium: {fontFamily: 'sans-serif-medium', fontWeight: '500' as const},
-      bold: {fontFamily: 'sans-serif', fontWeight: '700' as const},
-      heavy: {fontFamily: 'sans-serif', fontWeight: '900' as const},
+      bold: {fontFamily: 'sans-serif-medium', fontWeight: '700' as const},
+      heavy: {fontFamily: 'sans-serif-medium', fontWeight: '700' as const},
     },
   };
 
-  const styles = StyleSheet.create({
-    tabBar: {
-      backgroundColor: colors.tabBarBackground,
-      borderTopWidth: 1,
-      borderTopColor: colors.tabBarBorder,
-      height: Platform.OS === 'android' ? 60 : 80,
-      paddingBottom: Platform.OS === 'android' ? spacing[2] : spacing[5],
-      paddingTop: spacing[2],
-      elevation: 8,
-    },
-    tabLabel: {
-      fontSize: typography.sizes.xs,
-      fontWeight: typography.weights.semibold,
-      letterSpacing: typography.letterSpacing.wide,
-      marginTop: 2,
-    },
-    indicator: {
-      width: 4,
-      height: 4,
-      borderRadius: borderRadius.full,
-      backgroundColor: colors.primary,
-      alignSelf: 'center',
-      marginTop: 2,
-    },
-  });
-
   return (
     <NavigationContainer theme={navigationTheme}>
-      <Tab.Navigator
-        screenOptions={({route}) => ({
-          headerShown: false,
-          tabBarStyle: styles.tabBar,
-          tabBarIcon: ({focused}) => (
-            <View style={{alignItems: 'center'}}>
-              <TabIcon name={route.name} focused={focused} />
-              {focused && <View style={styles.indicator} />}
-            </View>
-          ),
-          tabBarLabel: ({focused}) => (
-            <Text
-              style={[
-                styles.tabLabel,
-                {
-                  color: focused ? colors.iconActive : colors.iconInactive,
-                },
-              ]}>
-              {route.name}
-            </Text>
-          ),
-          tabBarHideOnKeyboard: true,
-        })}>
-        <Tab.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{tabBarAccessibilityLabel: 'Home tab'}}
+      <Stack.Navigator screenOptions={{headerShown: false}}>
+        <Stack.Screen name="MainTabs" component={MainTabNavigator} />
+        <Stack.Screen
+          name="TemplatePreview"
+          component={TemplatePreviewScreen}
+          options={{
+            animation: 'slide_from_right',
+          }}
         />
-        <Tab.Screen
-          name="Saved"
-          component={SavedQuotesScreen}
-          options={{tabBarAccessibilityLabel: 'Saved quotes tab'}}
-        />
-        <Tab.Screen
-          name="Settings"
-          component={SettingsScreen}
-          options={{tabBarAccessibilityLabel: 'Settings tab'}}
-        />
-      </Tab.Navigator>
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }

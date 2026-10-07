@@ -1,45 +1,33 @@
-// Light and dark palette tokens
+// Motiva - Minimal Refined Light Design System Palette
 export const palette = {
-  // Brand
-  violet: '#7C3AED',
-  violetLight: '#9F7AEA',
-  violetDark: '#5B21B6',
-  indigo: '#4F46E5',
-  indigoDark: '#3730A3',
-
-  // Neutrals
+  // Pure & Paper Neutrals
   white: '#FFFFFF',
-  offWhite: '#F8F7FF',
-  gray50: '#F9FAFB',
-  gray100: '#F3F4F6',
-  gray200: '#E5E7EB',
-  gray300: '#D1D5DB',
-  gray400: '#9CA3AF',
-  gray500: '#6B7280',
-  gray600: '#4B5563',
-  gray700: '#374151',
-  gray800: '#1F2937',
-  gray900: '#111827',
-  black: '#000000',
+  background: '#FAFAF8',
+  backgroundSecondary: '#F3F3F0',
+  surfaceHover: '#F7F7F5',
 
-  // Dark mode backgrounds
-  dark900: '#0D0D1A',
-  dark800: '#13131F',
-  dark700: '#1A1A2E',
-  dark600: '#22223B',
-  dark500: '#2D2D44',
+  // Borders & Dividers
+  border: '#E5E5E0',
+  borderLight: '#EDEDEA',
+  divider: '#EDEDEA',
 
-  // Semantic
-  success: '#10B981',
-  error: '#EF4444',
-  warning: '#F59E0B',
-  info: '#3B82F6',
+  // Typography
+  textPrimary: '#171717',
+  textSecondary: '#6B6B6B',
+  textTertiary: '#8E8E8A',
+  textInverse: '#FFFFFF',
 
-  // Accent
-  rose: '#F43F5E',
-  roseLight: '#FDA4AF',
-  amber: '#F59E0B',
-  emerald: '#10B981',
+  // Accent & Brand (Single restrained dark accent)
+  accent: '#1F1F1F',
+  accentHover: '#000000',
+  accentSubtle: '#F0F0EC',
+
+  // Status & Feedback (Restrained)
+  error: '#DC2626',
+  errorBackground: '#FEF2F2',
+  success: '#16A34A',
+  warning: '#D97706',
+  info: '#2563EB',
 } as const;
 
 export interface ThemeColors {
@@ -48,6 +36,7 @@ export interface ThemeColors {
   backgroundSecondary: string;
   surface: string;
   surfaceElevated: string;
+  surfaceVariant: string;
 
   // Text
   textPrimary: string;
@@ -55,12 +44,12 @@ export interface ThemeColors {
   textTertiary: string;
   textInverse: string;
 
-  // Brand
+  // Brand / Accent
   primary: string;
   primaryLight: string;
   primaryDark: string;
 
-  // UI
+  // UI & Borders
   border: string;
   borderLight: string;
   divider: string;
@@ -85,85 +74,51 @@ export interface ThemeColors {
   error: string;
   success: string;
 
-  // Gradient start/end
+  // Gradient (Subtle tonal fallback)
   gradientStart: string;
   gradientEnd: string;
 }
 
+// LIGHT THEME ONLY - Motiva is strictly a light-only editorial application
 export const lightColors: ThemeColors = {
-  background: palette.offWhite,
-  backgroundSecondary: palette.gray100,
+  background: palette.background,
+  backgroundSecondary: palette.backgroundSecondary,
   surface: palette.white,
   surfaceElevated: palette.white,
+  surfaceVariant: palette.backgroundSecondary,
 
-  textPrimary: palette.gray900,
-  textSecondary: palette.gray600,
-  textTertiary: palette.gray400,
-  textInverse: palette.white,
+  textPrimary: palette.textPrimary,
+  textSecondary: palette.textSecondary,
+  textTertiary: palette.textTertiary,
+  textInverse: palette.textInverse,
 
-  primary: palette.violet,
-  primaryLight: palette.violetLight,
-  primaryDark: palette.violetDark,
+  primary: palette.accent,
+  primaryLight: '#2E2E2E',
+  primaryDark: '#000000',
 
-  border: palette.gray200,
-  borderLight: palette.gray100,
-  divider: palette.gray200,
+  border: palette.border,
+  borderLight: palette.borderLight,
+  divider: palette.divider,
 
   buttonText: palette.white,
-  iconActive: palette.violet,
-  iconInactive: palette.gray400,
+  iconActive: palette.textPrimary,
+  iconInactive: palette.textTertiary,
 
   cardBackground: palette.white,
-  cardBorder: palette.gray200,
-  cardShadow: 'rgba(124,58,237,0.10)',
+  cardBorder: palette.border,
+  cardShadow: 'rgba(0, 0, 0, 0.03)',
 
   tabBarBackground: palette.white,
-  tabBarBorder: palette.gray200,
+  tabBarBorder: palette.border,
 
-  warning: palette.amber,
-  saved: palette.rose,
+  warning: palette.warning,
+  saved: palette.textPrimary,
   error: palette.error,
   success: palette.success,
 
-  gradientStart: '#EDE9FE',
-  gradientEnd: '#DDD6FE',
+  gradientStart: palette.background,
+  gradientEnd: palette.backgroundSecondary,
 };
 
-export const darkColors: ThemeColors = {
-  background: palette.dark900,
-  backgroundSecondary: palette.dark800,
-  surface: palette.dark700,
-  surfaceElevated: palette.dark600,
-
-  textPrimary: palette.white,
-  textSecondary: palette.gray300,
-  textTertiary: palette.gray500,
-  textInverse: palette.gray900,
-
-  primary: palette.violetLight,
-  primaryLight: '#C4B5FD',
-  primaryDark: palette.violet,
-
-  border: palette.dark500,
-  borderLight: palette.dark600,
-  divider: palette.dark500,
-
-  buttonText: palette.white,
-  iconActive: palette.violetLight,
-  iconInactive: palette.gray600,
-
-  cardBackground: palette.dark700,
-  cardBorder: palette.dark500,
-  cardShadow: 'rgba(0,0,0,0.40)',
-
-  tabBarBackground: palette.dark800,
-  tabBarBorder: palette.dark600,
-
-  warning: '#FCD34D',
-  saved: palette.roseLight,
-  error: '#FCA5A5',
-  success: '#6EE7B7',
-
-  gradientStart: '#1E1B4B',
-  gradientEnd: '#2D2D44',
-};
+// Aliased to lightColors - dark theme is completely removed per design directives
+export const darkColors: ThemeColors = lightColors;

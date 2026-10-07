@@ -1,262 +1,194 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
   StatusBar,
   Linking,
+  Switch,
+  Alert,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useTheme} from '../theme/ThemeContext';
-import type {ThemeMode} from '../theme/ThemeContext';
 import {typography} from '../theme/typography';
-import {spacing, borderRadius, shadow} from '../theme/spacing';
+import {spacing} from '../theme/spacing';
+import {SectionHeader} from '../components/SectionHeader';
+import {SettingRow} from '../components/SettingRow';
+import {
+  getNotificationSettings,
+  setNotificationEnabled,
+  sendTestNotification,
+} from '../native/DailyNotification';
 
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.0.1';
 
-function SettingsRow({
-  label,
-  value,
-  onPress,
-  isLast = false,
-  description,
+export function SettingsScreen({
+  navigation,
 }: {
-  label: string;
-  value?: string;
-  onPress?: () => void;
-  isLast?: boolean;
-  description?: string;
+  navigation: any;
 }): React.JSX.Element {
   const {colors} = useTheme();
-  const styles = StyleSheet.create({
-    row: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      paddingHorizontal: spacing[5],
-      paddingVertical: spacing[4],
-      borderBottomWidth: isLast ? 0 : 1,
-      borderBottomColor: colors.divider,
-    },
-    labelGroup: {flex: 1},
-    label: {
-      fontSize: typography.sizes.base,
-      fontWeight: typography.weights.medium,
-      color: colors.textPrimary,
-    },
-    description: {
-      fontSize: typography.sizes.sm,
-      color: colors.textTertiary,
-      marginTop: 2,
-    },
-    value: {
-      fontSize: typography.sizes.sm,
-      color: colors.textSecondary,
-      fontWeight: typography.weights.medium,
-    },
-    chevron: {
-      fontSize: typography.sizes.base,
-      color: colors.textTertiary,
-      marginLeft: spacing[2],
-    },
-  });
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+
+  useEffect(() => {
+    getNotificationSettings()
+      .then(settings => setNotificationsEnabled(settings.enabled))
+      .catch(() => {});
+  }, []);
+
+  const handleToggleNotifications = async (val: boolean) => {
+    setNotificationsEnabled(val);
+    try {
+      await setNotificationEnabled(val);
+    } catch {
+      Alert.alert('Settings Error', 'Could not update notification schedule.');
+    }
+  };
+
+  const handleSendTestNotification = async () => {
+    try {
+      await sendTestNotification();
+      Alert.alert(
+        'Test Notification Sent',
+        'Check your notification shade to preview the daily morning quote.',
+      );
+    } catch {
+      Alert.alert('Error', 'Could not trigger test notification.');
+    }
+  };
+
+  const handleOpenLink = (url: string) => {
+    Linking.openURL(url).catch(() => {
+      Alert.alert('Link Error', 'Could not open URL.');
+    });
+  };
 
   return (
-    <TouchableOpacity
-      style={styles.row}
-      onPress={onPress}
-      disabled={!onPress}
-      accessible
-      accessibilityRole={onPress ? 'button' : 'text'}
-      accessibilityLabel={label}>
-      <View style={styles.labelGroup}>
-        <Text style={styles.label}>{label}</Text>
-        {description ? (
-          <Text style={styles.description}>{description}</Text>
-        ) : null}
+    <SafeAreaView
+      style={[styles.safeArea, {backgroundColor: colors.background}]}
+      edges={['top']}>
+      <StatusBar barStyle="dark-content" />
+
+      {/* Screen Header */}
+      <View style={[styles.header, {borderBottomColor: colors.border}]}>
+        <Text style={[styles.title, {color: colors.textPrimary}]}>
+          Settings
+        </Text>
       </View>
-      {value ? <Text style={styles.value}>{value}</Text> : null}
-      {onPress ? <Text style={styles.chevron}>›</Text> : null}
-    </TouchableOpacity>
-  );
-}
 
-function ThemePicker(): React.JSX.Element {
-  const {colors, themeMode, setThemeMode} = useTheme();
-  const options: {label: string; mode: ThemeMode; emoji: string}[] = [
-    {label: 'System Default', mode: 'system', emoji: '🌗'},
-    {label: 'Light', mode: 'light', emoji: '☀️'},
-    {label: 'Dark', mode: 'dark', emoji: '🌙'},
-  ];
-
-  const styles = StyleSheet.create({
-    row: {
-      flexDirection: 'row',
-      paddingHorizontal: spacing[5],
-      paddingVertical: spacing[4],
-      gap: spacing[3],
-    },
-    option: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingVertical: spacing[4],
-      borderRadius: borderRadius.xl,
-      borderWidth: 1.5,
-    },
-    emoji: {
-      fontSize: 22,
-      marginBottom: spacing[1],
-    },
-    optLabel: {
-      fontSize: typography.sizes.xs,
-      fontWeight: typography.weights.semibold,
-      letterSpacing: typography.letterSpacing.wide,
-    },
-  });
-
-  return (
-    <View style={styles.row}>
-      {options.map(opt => {
-        const isSelected = themeMode === opt.mode;
-        return (
-          <TouchableOpacity
-            key={opt.mode}
-            style={[
-              styles.option,
-              {
-                borderColor: isSelected ? colors.primary : colors.border,
-                backgroundColor: isSelected
-                  ? colors.primary + '18'
-                  : colors.surface,
-              },
-            ]}
-            onPress={() => setThemeMode(opt.mode)}
-            accessible
-            accessibilityRole="radio"
-            accessibilityState={{selected: isSelected}}
-            accessibilityLabel={`Set theme to ${opt.label}`}>
-            <Text style={styles.emoji}>{opt.emoji}</Text>
-            <Text
-              style={[
-                styles.optLabel,
-                {color: isSelected ? colors.primary : colors.textSecondary},
-              ]}>
-              {opt.label}
-            </Text>
-          </TouchableOpacity>
-        );
-      })}
-    </View>
-  );
-}
-
-function SettingsSection({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}): React.JSX.Element {
-  const {colors} = useTheme();
-  const styles = StyleSheet.create({
-    section: {
-      marginBottom: spacing[6],
-    },
-    sectionTitle: {
-      fontSize: typography.sizes.xs,
-      fontWeight: typography.weights.bold,
-      color: colors.primary,
-      letterSpacing: typography.letterSpacing.widest,
-      textTransform: 'uppercase',
-      paddingHorizontal: spacing[5],
-      marginBottom: spacing[2],
-      marginTop: spacing[5],
-    },
-    card: {
-      marginHorizontal: spacing[4],
-      backgroundColor: colors.surface,
-      borderRadius: borderRadius.xl,
-      borderWidth: 1,
-      borderColor: colors.border,
-      overflow: 'hidden',
-      ...shadow.sm,
-    },
-  });
-
-  return (
-    <View style={styles.section}>
-      <Text style={styles.sectionTitle}>{title}</Text>
-      <View style={styles.card}>{children}</View>
-    </View>
-  );
-}
-
-export function SettingsScreen(): React.JSX.Element {
-  const {colors, isDark} = useTheme();
-
-  const styles = StyleSheet.create({
-    safeArea: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    header: {
-      paddingHorizontal: spacing[6],
-      paddingTop: spacing[6],
-      paddingBottom: spacing[5],
-      borderBottomWidth: 1,
-      borderBottomColor: colors.divider,
-    },
-    title: {
-      fontSize: typography.sizes['2xl'],
-      fontWeight: typography.weights.bold,
-      color: colors.textPrimary,
-    },
-    scrollContent: {
-      paddingBottom: spacing[16],
-    },
-  });
-
-  return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <StatusBar
-        barStyle={isDark ? 'light-content' : 'dark-content'}
-      />
-      <View style={styles.header}>
-        <Text style={styles.title}>Settings</Text>
-      </View>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
-        {/* Appearance */}
-        <SettingsSection title="Appearance">
-          <ThemePicker />
-        </SettingsSection>
-
-        {/* Widget */}
-        <SettingsSection title="Home Screen Widget">
-          <SettingsRow
-            label="Daily Quote Widget"
-            description="Add the Motiva widget to your home screen to see your daily quote without opening the app."
-            isLast
+        {/* Appearance Group */}
+        <SectionHeader title="Appearance" />
+        <View style={[styles.groupContainer, {borderColor: colors.border}]}>
+          <SettingRow
+            label="Theme"
+            description="Minimal Light System"
+            value="Light"
+            showDivider={false}
           />
-        </SettingsSection>
+        </View>
 
-        {/* About */}
-        <SettingsSection title="About">
-          <SettingsRow label="App Name" value="Motiva" />
-          <SettingsRow label="Tagline" value="Daily Motivation" />
-          <SettingsRow label="Version" value={APP_VERSION} />
-          <SettingsRow
-            label="Data Source"
-            value="Quotable API"
-            onPress={() => Linking.openURL('https://quotable.io')}
-            isLast
+        {/* Widget Group */}
+        <SectionHeader title="Widget" />
+        <View style={[styles.groupContainer, {borderColor: colors.border}]}>
+          <SettingRow
+            label="Widget Templates"
+            description="Customize style, layout and colors"
+            onPress={() => navigation.navigate('Templates')}
           />
-        </SettingsSection>
+          <SettingRow
+            label="Update Frequency"
+            value="Every Morning"
+            showDivider={false}
+          />
+        </View>
+
+        {/* Notifications Group */}
+        <SectionHeader title="Notifications" />
+        <View style={[styles.groupContainer, {borderColor: colors.border}]}>
+          <SettingRow
+            label="Daily Morning Quote"
+            description="Triggers daily at 8:30 AM"
+            rightElement={
+              <Switch
+                value={notificationsEnabled}
+                onValueChange={handleToggleNotifications}
+                thumbColor="#FFFFFF"
+                trackColor={{
+                  false: colors.border,
+                  true: colors.primary,
+                }}
+              />
+            }
+          />
+          <SettingRow
+            label="Send Test Notification"
+            description="Preview notification appearance"
+            onPress={handleSendTestNotification}
+            showDivider={false}
+          />
+        </View>
+
+        {/* About Group */}
+        <SectionHeader title="About" />
+        <View style={[styles.groupContainer, {borderColor: colors.border}]}>
+          <SettingRow
+            label="Version"
+            value={APP_VERSION}
+          />
+          <SettingRow
+            label="Privacy Policy"
+            onPress={() => handleOpenLink('https://motiva.app/privacy')}
+          />
+          <SettingRow
+            label="Terms of Service"
+            onPress={() => handleOpenLink('https://motiva.app/terms')}
+            showDivider={false}
+          />
+        </View>
+
+        <View style={styles.footerNote}>
+          <Text style={[styles.footerText, {color: colors.textTertiary}]}>
+            MOTIVA · DAILY MOTIVATION & WIDGETS
+          </Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
+  header: {
+    paddingHorizontal: spacing[6],
+    paddingTop: spacing[4],
+    paddingBottom: spacing[4],
+    borderBottomWidth: 1,
+  },
+  title: {
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.bold,
+    letterSpacing: typography.letterSpacing.tight,
+  },
+  scrollContent: {
+    paddingBottom: spacing[12],
+  },
+  groupContainer: {
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+  },
+  footerNote: {
+    alignItems: 'center',
+    paddingVertical: spacing[8],
+  },
+  footerText: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 1.5,
+  },
+});

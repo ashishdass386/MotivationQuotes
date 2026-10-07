@@ -1,55 +1,77 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {useTheme} from '../theme/ThemeContext';
 import {typography} from '../theme/typography';
 import {spacing} from '../theme/spacing';
 
 interface EmptyStateProps {
-  emoji?: string;
   title: string;
   subtitle?: string;
+  actionText?: string;
+  onActionPress?: () => void;
 }
 
 export function EmptyState({
-  emoji = '✨',
   title,
   subtitle,
+  actionText,
+  onActionPress,
 }: EmptyStateProps): React.JSX.Element {
   const {colors} = useTheme();
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      paddingHorizontal: spacing[8],
-    },
-    emojiText: {
-      fontSize: 56,
-      marginBottom: spacing[5],
-    },
-    title: {
-      fontSize: typography.sizes.xl,
-      fontWeight: typography.weights.bold,
-      color: colors.textPrimary,
-      textAlign: 'center',
-      marginBottom: spacing[3],
-    },
-    subtitle: {
-      fontSize: typography.sizes.base,
-      color: colors.textSecondary,
-      textAlign: 'center',
-      lineHeight: typography.sizes.base * typography.lineHeights.relaxed,
-    },
-  });
-
   return (
     <View style={styles.container}>
-      <Text style={styles.emojiText} importantForAccessibility="no">
-        {emoji}
+      <Text style={[styles.title, {color: colors.textPrimary}]}>
+        {title}
       </Text>
-      <Text style={styles.title}>{title}</Text>
-      {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+      {subtitle ? (
+        <Text style={[styles.subtitle, {color: colors.textSecondary}]}>
+          {subtitle}
+        </Text>
+      ) : null}
+      {actionText && onActionPress ? (
+        <TouchableOpacity
+          onPress={onActionPress}
+          activeOpacity={0.7}
+          style={styles.actionBtn}>
+          <Text style={[styles.actionText, {color: colors.primary}]}>
+            {actionText} →
+          </Text>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing[8],
+    paddingVertical: spacing[12],
+  },
+  title: {
+    fontSize: typography.sizes.md,
+    fontWeight: typography.weights.semibold,
+    textAlign: 'center',
+    letterSpacing: typography.letterSpacing.tight,
+    marginBottom: spacing[2],
+  },
+  subtitle: {
+    fontSize: typography.sizes.sm,
+    textAlign: 'center',
+    lineHeight: 20,
+    maxWidth: 280,
+  },
+  actionBtn: {
+    marginTop: spacing[5],
+    paddingVertical: spacing[2],
+    paddingHorizontal: spacing[4],
+  },
+  actionText: {
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.semibold,
+    letterSpacing: typography.letterSpacing.wide,
+  },
+});

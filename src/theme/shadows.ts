@@ -1,35 +1,5 @@
-// Motiva Spacing Scale: 4, 8, 12, 16, 24, 32, 40, 48, 64
-export const spacing = {
-  0: 0,
-  1: 4,
-  2: 8,
-  3: 12,
-  4: 16,
-  5: 20,
-  6: 24,
-  7: 28,
-  8: 32,
-  9: 36,
-  10: 40,
-  12: 48,
-  16: 64,
-} as const;
-
-// Restrained Corner Radius Scale (Subtle, architectural, never bulbous)
-export const borderRadius = {
-  none: 0,
-  sm: 4,
-  base: 8,
-  md: 8,
-  lg: 12,
-  xl: 14,
-  '2xl': 16,
-  '3xl': 16,
-  full: 9999,
-} as const;
-
-// Minimal Hairline Shadows (Relies on #E5E5E0 borders and contrast rather than heavy elevation)
-export const shadow = {
+// Motiva Minimal Hairline Shadows (Relies on #E5E5E0 borders and contrast rather than heavy elevation)
+export const shadows = {
   none: {
     shadowColor: 'transparent',
     shadowOffset: {width: 0, height: 0},
@@ -66,3 +36,5 @@ export const shadow = {
     elevation: 3,
   },
 } as const;
+
+export type Shadows = typeof shadows;

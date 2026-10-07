@@ -6,6 +6,7 @@ import {
   addRecentQuoteId,
 } from '../storage/quoteStorage';
 import {getTodayDateString, isToday} from '../utils/dateUtils';
+import {getTodaysNotificationQuote} from '../native/DailyNotification';
 import type {Quote, DailyQuoteRecord} from '../models/Quote';
 
 let lastRequestTime = 0;
@@ -14,6 +15,7 @@ const REQUEST_COOLDOWN_MS = 600;
 /**
  * Returns today's quote.
  * Checks cache first — only fetches a new quote if no valid cached quote exists for today.
+ * Also checks if the 8:30 AM local notification delivered today's quote.
  */
 export async function getDailyQuoteForToday(): Promise<Quote> {
   try {
@@ -22,7 +24,32 @@ export async function getDailyQuoteForToday(): Promise<Quote> {
       return cached.quote;
     }
   } catch {
-    // If cache read fails, continue to fetch
+    // If cache read fails, continue
+  }
+
+  // Check if today's quote was already chosen and delivered by morning notification
+  try {
+    const notifQuote = await getTodaysNotificationQuote();
+    if (notifQuote && notifQuote.content) {
+      const quote: Quote = {
+        _id: notifQuote.id || `daily-${notifQuote.date}`,
+        content: notifQuote.content,
+        author: notifQuote.author || 'Motiva',
+        tags: ['Inspirational'],
+        length: notifQuote.content.length,
+        dateAdded: notifQuote.date,
+        dateModified: notifQuote.date,
+      };
+      const record: DailyQuoteRecord = {
+        quote,
+        quoteDate: getTodayDateString(),
+        updatedAt: new Date().toISOString(),
+      };
+      await saveDailyQuote(record);
+      return quote;
+    }
+  } catch {
+    // Continue to standard fetch
   }
 
   return fetchAndSaveNewQuote();

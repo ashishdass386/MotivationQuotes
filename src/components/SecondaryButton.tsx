@@ -11,83 +11,47 @@ import {useTheme} from '../theme/ThemeContext';
 import {typography} from '../theme/typography';
 import {spacing, borderRadius} from '../theme/spacing';
 
-interface PrimaryButtonProps {
+interface SecondaryButtonProps {
   label: string;
   onPress: () => void;
   disabled?: boolean;
   loading?: boolean;
-  variant?: 'solid' | 'outline' | 'ghost';
   icon?: React.ReactNode;
   accessibilityLabel?: string;
   style?: ViewStyle;
 }
 
-export function PrimaryButton({
+export function SecondaryButton({
   label,
   onPress,
   disabled = false,
   loading = false,
-  variant = 'solid',
   icon,
   accessibilityLabel,
   style,
-}: PrimaryButtonProps): React.JSX.Element {
+}: SecondaryButtonProps): React.JSX.Element {
   const {colors} = useTheme();
   const isDisabled = disabled || loading;
-
-  const getContainerStyle = (): ViewStyle => {
-    switch (variant) {
-      case 'outline':
-        return {
-          backgroundColor: colors.surface,
-          borderWidth: 1,
-          borderColor: isDisabled ? colors.border : colors.border,
-        };
-      case 'ghost':
-        return {
-          backgroundColor: 'transparent',
-          borderWidth: 0,
-        };
-      default:
-        return {
-          backgroundColor: isDisabled ? colors.border : colors.primary,
-          borderWidth: 0,
-        };
-    }
-  };
-
-  const getTextColor = (): string => {
-    if (isDisabled) {
-      return colors.textTertiary;
-    }
-    switch (variant) {
-      case 'outline':
-      case 'ghost':
-        return colors.textPrimary;
-      default:
-        return colors.buttonText;
-    }
-  };
 
   return (
     <TouchableOpacity
       onPress={onPress}
       disabled={isDisabled}
-      activeOpacity={0.8}
+      activeOpacity={0.7}
       accessible
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={{disabled: isDisabled, busy: loading}}
       style={[
         styles.button,
-        getContainerStyle(),
+        {
+          backgroundColor: colors.surface,
+          borderColor: isDisabled ? colors.borderLight : colors.border,
+        },
         style,
       ]}>
       {loading ? (
-        <ActivityIndicator
-          size="small"
-          color={variant === 'solid' ? colors.buttonText : colors.primary}
-        />
+        <ActivityIndicator size="small" color={colors.textPrimary} />
       ) : (
         <View style={styles.contentRow}>
           {icon ? <View style={styles.iconWrapper}>{icon}</View> : null}
@@ -95,8 +59,7 @@ export function PrimaryButton({
             style={[
               styles.label,
               {
-                color: getTextColor(),
-                fontWeight: variant === 'solid' ? '600' : '500',
+                color: isDisabled ? colors.textTertiary : colors.textPrimary,
               },
             ]}>
             {label}
@@ -111,6 +74,7 @@ const styles = StyleSheet.create({
   button: {
     height: 44,
     borderRadius: borderRadius.base,
+    borderWidth: 1,
     paddingHorizontal: spacing[5],
     alignItems: 'center',
     justifyContent: 'center',
@@ -125,6 +89,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: typography.sizes.sm,
+    fontWeight: '500',
     letterSpacing: typography.letterSpacing.wide,
   },
 });

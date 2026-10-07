@@ -1,10 +1,9 @@
-import React, {useRef, useEffect} from 'react';
+import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  Animated,
   StatusBar,
   TouchableOpacity,
   Alert,
@@ -15,45 +14,17 @@ import {typography} from '../theme/typography';
 import {spacing, borderRadius} from '../theme/spacing';
 import {QuoteCard} from '../components/QuoteCard';
 import {PrimaryButton} from '../components/PrimaryButton';
-import {LoadingView} from '../components/LoadingView';
+import {BookmarkIcon, ShareIcon, RefreshIcon} from '../components/Icons';
 import {useDailyQuote} from '../hooks/useDailyQuote';
 import {shareQuote} from '../utils/shareUtils';
 import {getGreeting} from '../utils/dateUtils';
 
 export function HomeScreen(): React.JSX.Element {
-  const {colors, isDark} = useTheme();
+  const {colors} = useTheme();
   const {quote, loadState, isSaved, errorMessage, refreshQuote, toggleSave} =
     useDailyQuote();
-  const heartScale = useRef(new Animated.Value(1)).current;
-  const headerFade = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.timing(headerFade, {
-      toValue: 1,
-      duration: 700,
-      useNativeDriver: true,
-    }).start();
-  }, [headerFade]);
-
-  const animateHeart = () => {
-    Animated.sequence([
-      Animated.spring(heartScale, {
-        toValue: 1.4,
-        tension: 300,
-        friction: 5,
-        useNativeDriver: true,
-      }),
-      Animated.spring(heartScale, {
-        toValue: 1,
-        tension: 300,
-        friction: 10,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  };
 
   const handleSave = async () => {
-    animateHeart();
     await toggleSave();
   };
 
@@ -72,219 +43,233 @@ export function HomeScreen(): React.JSX.Element {
     await refreshQuote();
   };
 
-  const isLoading = loadState === 'loading';
   const isRefreshing = loadState === 'refreshing';
-
-  const styles = StyleSheet.create({
-    safeArea: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    container: {
-      flex: 1,
-    },
-    scrollContent: {
-      flexGrow: 1,
-      paddingBottom: spacing[10],
-    },
-    header: {
-      paddingHorizontal: spacing[6],
-      paddingTop: spacing[6],
-      paddingBottom: spacing[4],
-    },
-    appName: {
-      fontSize: typography.sizes.sm,
-      fontWeight: typography.weights.extrabold,
-      color: colors.primary,
-      letterSpacing: typography.letterSpacing.widest,
-      textTransform: 'uppercase',
-      marginBottom: spacing[1],
-    },
-    greeting: {
-      fontSize: typography.sizes['3xl'],
-      fontWeight: typography.weights.bold,
-      color: colors.textPrimary,
-      letterSpacing: typography.letterSpacing.tight,
-    },
-    greetingAccent: {
-      color: colors.primary,
-    },
-    dailyLabel: {
-      fontSize: typography.sizes.sm,
-      fontWeight: typography.weights.semibold,
-      color: colors.textTertiary,
-      letterSpacing: typography.letterSpacing.widest,
-      textTransform: 'uppercase',
-      textAlign: 'center',
-      marginTop: spacing[6],
-      marginBottom: spacing[4],
-    },
-    cardSection: {
-      flex: 1,
-    },
-    errorBox: {
-      marginHorizontal: spacing[5],
-      padding: spacing[4],
-      backgroundColor: colors.error + '15',
-      borderRadius: borderRadius.lg,
-      borderWidth: 1,
-      borderColor: colors.error + '40',
-    },
-    errorText: {
-      fontSize: typography.sizes.sm,
-      color: colors.error,
-      textAlign: 'center',
-      fontWeight: typography.weights.medium,
-    },
-    actionsSection: {
-      paddingHorizontal: spacing[5],
-      marginTop: spacing[8],
-    },
-    newQuoteButton: {
-      marginBottom: spacing[4],
-    },
-    secondaryActions: {
-      flexDirection: 'row',
-      gap: spacing[3],
-    },
-    actionButton: {
-      flex: 1,
-    },
-    heartContainer: {
-      alignItems: 'center',
-    },
-    heartEmoji: {
-      fontSize: 18,
-    },
-    offlineBadge: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      alignSelf: 'center',
-      marginTop: spacing[3],
-      paddingHorizontal: spacing[3],
-      paddingVertical: spacing[1],
-      backgroundColor: '#F59E0B20',
-      borderRadius: borderRadius.full,
-    },
-    offlineText: {
-      fontSize: typography.sizes.xs,
-      color: '#F59E0B',
-      fontWeight: typography.weights.medium,
-      marginLeft: spacing[1],
-    },
+  const greeting = getGreeting();
+  const todayFormatted = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
   });
 
-  const greeting = getGreeting();
-
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <StatusBar
-        barStyle={isDark ? 'light-content' : 'dark-content'}
-      />
+    <SafeAreaView style={[styles.safeArea, {backgroundColor: colors.background}]} edges={['top']}>
+      <StatusBar barStyle="dark-content" />
+
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <Animated.View style={[styles.header, {opacity: headerFade}]}>
-          <Text style={styles.appName}>Motiva</Text>
-          <Text style={styles.greeting}>
-            {greeting.split(' ')[0]}{' '}
-            <Text style={styles.greetingAccent}>
-              {greeting.split(' ').slice(1).join(' ')}
+        {/* Minimal Editorial Header */}
+        <View style={styles.header}>
+          <View style={styles.mastheadRow}>
+            <Text style={[styles.brandTitle, {color: colors.textPrimary}]}>
+              MOTIVA
             </Text>
+            <Text style={[styles.dateText, {color: colors.textTertiary}]}>
+              {todayFormatted.toUpperCase()}
+            </Text>
+          </View>
+          <Text style={[styles.greetingSub, {color: colors.textSecondary}]}>
+            {greeting}
           </Text>
-        </Animated.View>
+        </View>
 
-        {/* Section label */}
-        <Text style={styles.dailyLabel}>Daily Motivation</Text>
-
-        {/* Quote area */}
-        <View style={styles.cardSection}>
-          {isLoading ? (
-            <LoadingView message="Finding your daily quote…" />
-          ) : errorMessage && !quote ? (
-            <View style={styles.errorBox}>
-              <Text style={styles.errorText}>{errorMessage}</Text>
+        {/* Hero Quote Section */}
+        <View style={styles.heroSection}>
+          {errorMessage && !quote ? (
+            <View style={[styles.errorBox, {borderColor: colors.border}]}>
+              <Text style={[styles.errorText, {color: colors.textSecondary}]}>
+                {errorMessage}
+              </Text>
+              <TouchableOpacity
+                onPress={handleNewQuote}
+                style={[styles.retryBtn, {borderColor: colors.border}]}>
+                <Text style={[styles.retryText, {color: colors.textPrimary}]}>
+                  Retry
+                </Text>
+              </TouchableOpacity>
             </View>
           ) : quote ? (
             <QuoteCard quote={quote} animationKey={quote._id} />
-          ) : null}
+          ) : (
+            <View style={[styles.loadingBox, {borderColor: colors.border}]}>
+              <Text style={[styles.loadingText, {color: colors.textTertiary}]}>
+                Loading daily inspiration…
+              </Text>
+            </View>
+          )}
         </View>
 
-        {/* Actions */}
-        <View style={styles.actionsSection}>
-          <View style={styles.newQuoteButton}>
-            <PrimaryButton
-              label="New Quote"
-              onPress={handleNewQuote}
-              loading={isRefreshing}
-              disabled={isLoading || isRefreshing}
-              accessibilityLabel="Fetch a new motivational quote"
-            />
-          </View>
-
-          <View style={styles.secondaryActions}>
-            {/* Save button */}
-            <View style={styles.actionButton}>
+        {/* Supporting Controls Section */}
+        {quote && (
+          <View style={styles.controlsSection}>
+            {/* Action Bar (Save & Share) */}
+            <View style={styles.actionRow}>
               <TouchableOpacity
                 onPress={handleSave}
-                disabled={!quote || isLoading}
+                activeOpacity={0.7}
+                style={[
+                  styles.controlButton,
+                  {
+                    backgroundColor: colors.surface,
+                    borderColor: isSaved ? colors.textPrimary : colors.border,
+                  },
+                ]}
                 accessible
                 accessibilityRole="button"
-                accessibilityLabel={isSaved ? 'Unsave quote' : 'Save quote'}
-                accessibilityState={{selected: isSaved}}
-                style={[
-                  styles.actionButton,
-                  {
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    paddingVertical: spacing[3],
-                    borderRadius: borderRadius['3xl'],
-                    borderWidth: 1.5,
-                    borderColor: isSaved ? colors.saved : colors.border,
-                    backgroundColor: isSaved
-                      ? colors.saved + '15'
-                      : 'transparent',
-                    minHeight: 48,
-                  },
-                ]}>
-                <Animated.Text
+                accessibilityLabel={isSaved ? 'Remove from saved' : 'Save quote'}>
+                <BookmarkIcon
+                  size={16}
+                  color={isSaved ? colors.textPrimary : colors.textSecondary}
+                  filled={isSaved}
+                />
+                <Text
                   style={[
-                    styles.heartEmoji,
+                    styles.controlText,
                     {
-                      transform: [{scale: heartScale}],
-                      marginRight: spacing[2],
+                      color: isSaved ? colors.textPrimary : colors.textSecondary,
+                      fontWeight: isSaved ? '600' : '500',
                     },
                   ]}>
-                  {isSaved ? '♥' : '♡'}
-                </Animated.Text>
-                <Text
-                  style={{
-                    fontSize: typography.sizes.base,
-                    fontWeight: typography.weights.semibold,
-                    color: isSaved ? colors.saved : colors.textSecondary,
-                    letterSpacing: typography.letterSpacing.wide,
-                  }}>
                   {isSaved ? 'Saved' : 'Save'}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={handleShare}
+                activeOpacity={0.7}
+                style={[
+                  styles.controlButton,
+                  {
+                    backgroundColor: colors.surface,
+                    borderColor: colors.border,
+                  },
+                ]}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel="Share quote">
+                <ShareIcon size={16} color={colors.textSecondary} />
+                <Text style={[styles.controlText, {color: colors.textSecondary}]}>
+                  Share
                 </Text>
               </TouchableOpacity>
             </View>
 
-            {/* Share button */}
-            <View style={styles.actionButton}>
+            {/* Restrained Primary Button: New Quote */}
+            <View style={styles.newQuoteWrapper}>
               <PrimaryButton
-                label="Share"
-                onPress={handleShare}
-                disabled={!quote || isLoading}
-                variant="outline"
-                accessibilityLabel="Share this quote"
+                label="New Quote"
+                onPress={handleNewQuote}
+                loading={isRefreshing}
+                variant="solid"
+                icon={<RefreshIcon size={15} color="#FFFFFF" />}
+                accessibilityLabel="Fetch a new quote"
               />
             </View>
           </View>
-        </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
+  container: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: spacing[8],
+  },
+  header: {
+    paddingHorizontal: spacing[6],
+    paddingTop: spacing[4],
+    paddingBottom: spacing[4],
+  },
+  mastheadRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+  },
+  brandTitle: {
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.bold,
+    letterSpacing: typography.letterSpacing.widest,
+  },
+  dateText: {
+    fontSize: 10,
+    fontWeight: '600',
+    letterSpacing: 1.2,
+  },
+  greetingSub: {
+    fontSize: typography.sizes.base,
+    marginTop: spacing[2],
+    letterSpacing: typography.letterSpacing.tight,
+  },
+  heroSection: {
+    marginTop: spacing[4],
+    marginBottom: spacing[4],
+  },
+  controlsSection: {
+    paddingHorizontal: spacing[6],
+    marginTop: spacing[2],
+  },
+  actionRow: {
+    flexDirection: 'row',
+    gap: spacing[3],
+    marginBottom: spacing[4],
+  },
+  controlButton: {
+    flex: 1,
+    height: 40,
+    borderRadius: borderRadius.base,
+    borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing[2],
+  },
+  controlText: {
+    fontSize: typography.sizes.sm,
+    letterSpacing: typography.letterSpacing.wide,
+  },
+  newQuoteWrapper: {
+    width: '100%',
+  },
+  errorBox: {
+    marginHorizontal: spacing[6],
+    padding: spacing[6],
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    alignItems: 'center',
+  },
+  errorText: {
+    fontSize: typography.sizes.sm,
+    textAlign: 'center',
+    marginBottom: spacing[3],
+  },
+  retryBtn: {
+    paddingHorizontal: spacing[4],
+    paddingVertical: spacing[2],
+    borderRadius: borderRadius.sm,
+    borderWidth: 1,
+  },
+  retryText: {
+    fontSize: typography.sizes.xs,
+    fontWeight: '600',
+  },
+  loadingBox: {
+    marginHorizontal: spacing[6],
+    paddingVertical: spacing[12],
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingText: {
+    fontSize: typography.sizes.sm,
+  },
+});

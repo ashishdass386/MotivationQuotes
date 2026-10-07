@@ -1,4 +1,4 @@
-import React, {useState, useCallback, useEffect} from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   View,
   Text,
@@ -7,13 +7,15 @@ import {
   TouchableOpacity,
   Alert,
   StatusBar,
+  Platform,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useFocusEffect} from '@react-navigation/native';
 import {useTheme} from '../theme/ThemeContext';
 import {typography} from '../theme/typography';
-import {spacing, borderRadius, shadow} from '../theme/spacing';
+import {spacing} from '../theme/spacing';
 import {EmptyState} from '../components/EmptyState';
+import {ShareIcon, TrashIcon} from '../components/Icons';
 import {
   getSavedQuotes,
   unsaveQuote,
@@ -31,235 +33,208 @@ function SavedQuoteItem({
   onShare: (quote: Quote) => void;
 }): React.JSX.Element {
   const {colors} = useTheme();
-  const styles = StyleSheet.create({
-    card: {
-      backgroundColor: colors.cardBackground,
-      borderRadius: borderRadius.xl,
-      padding: spacing[5],
-      marginHorizontal: spacing[4],
-      marginBottom: spacing[3],
-      borderWidth: 1,
-      borderColor: colors.cardBorder,
-      ...shadow.base,
-    },
-    content: {
-      fontSize: typography.sizes.base,
-      color: colors.textPrimary,
-      fontStyle: 'italic',
-      lineHeight: typography.sizes.base * typography.lineHeights.relaxed,
-      marginBottom: spacing[3],
-    },
-    author: {
-      fontSize: typography.sizes.sm,
-      color: colors.primary,
-      fontWeight: typography.weights.semibold,
-    },
-    actions: {
-      flexDirection: 'row',
-      justifyContent: 'flex-end',
-      marginTop: spacing[3],
-      borderTopWidth: 1,
-      borderTopColor: colors.divider,
-      paddingTop: spacing[3],
-      gap: spacing[2],
-    },
-    actionBtn: {
-      paddingHorizontal: spacing[4],
-      paddingVertical: spacing[2],
-      borderRadius: borderRadius.full,
-      borderWidth: 1,
-    },
-    shareBtn: {
-      borderColor: colors.primary + '60',
-      backgroundColor: colors.primary + '10',
-    },
-    deleteBtn: {
-      borderColor: colors.error + '60',
-      backgroundColor: colors.error + '10',
-    },
-    shareBtnText: {
-      fontSize: typography.sizes.sm,
-      fontWeight: typography.weights.semibold,
-      color: colors.primary,
-    },
-    deleteBtnText: {
-      fontSize: typography.sizes.sm,
-      fontWeight: typography.weights.semibold,
-      color: colors.error,
-    },
-    tagRow: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: spacing[1],
-      marginBottom: spacing[2],
-    },
-    tag: {
-      backgroundColor: colors.primary + '18',
-      borderRadius: borderRadius.full,
-      paddingHorizontal: spacing[2],
-      paddingVertical: 2,
-    },
-    tagText: {
-      fontSize: typography.sizes.xs,
-      color: colors.primary,
-      fontWeight: typography.weights.semibold,
-      textTransform: 'uppercase',
-      letterSpacing: typography.letterSpacing.wide,
-    },
+
+  const quoteFontFamily = Platform.select({
+    android: 'serif',
+    default: 'Georgia',
   });
 
   return (
-    <View style={styles.card}>
-      {quote.tags && quote.tags.length > 0 && (
-        <View style={styles.tagRow}>
-          {quote.tags.slice(0, 2).map(t => (
-            <View key={t} style={styles.tag}>
-              <Text style={styles.tagText}>{t}</Text>
-            </View>
-          ))}
-        </View>
-      )}
-      <Text style={styles.content} numberOfLines={6}>
-        "{quote.content}"
+    <View style={[styles.itemContainer, {borderBottomColor: colors.divider}]}>
+      <Text
+        style={[
+          styles.quoteText,
+          {
+            color: colors.textPrimary,
+            fontFamily: quoteFontFamily,
+          },
+        ]}>
+        “{quote.content.trim()}”
       </Text>
-      <Text style={styles.author}>— {quote.author}</Text>
-      <View style={styles.actions}>
-        <TouchableOpacity
-          style={[styles.actionBtn, styles.shareBtn]}
-          onPress={() => onShare(quote)}
-          accessible
-          accessibilityRole="button"
-          accessibilityLabel={`Share quote by ${quote.author}`}>
-          <Text style={styles.shareBtnText}>↗ Share</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.actionBtn, styles.deleteBtn]}
-          onPress={() => onDelete(quote._id)}
-          accessible
-          accessibilityRole="button"
-          accessibilityLabel={`Delete quote by ${quote.author}`}>
-          <Text style={styles.deleteBtnText}>✕ Remove</Text>
-        </TouchableOpacity>
+
+      <View style={styles.footerRow}>
+        <Text style={[styles.authorText, {color: colors.textSecondary}]}>
+          — {quote.author?.trim() || 'Anonymous'}
+        </Text>
+
+        <View style={styles.actionRow}>
+          <TouchableOpacity
+            onPress={() => onShare(quote)}
+            hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}
+            accessible
+            accessibilityRole="button"
+            accessibilityLabel="Share saved quote"
+            style={styles.iconButton}>
+            <ShareIcon size={15} color={colors.textTertiary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => onDelete(quote._id)}
+            hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}
+            accessible
+            accessibilityRole="button"
+            accessibilityLabel="Delete saved quote"
+            style={styles.iconButton}>
+            <TrashIcon size={15} color={colors.textTertiary} />
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
 }
 
-export function SavedQuotesScreen(): React.JSX.Element {
-  const {colors, isDark} = useTheme();
+export function SavedQuotesScreen({
+  navigation,
+}: {
+  navigation: any;
+}): React.JSX.Element {
+  const {colors} = useTheme();
   const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const load = useCallback(async () => {
+  const loadSaved = useCallback(async () => {
     try {
-      const saved = await getSavedQuotes();
-      setQuotes(saved);
+      const items = await getSavedQuotes();
+      setQuotes(items);
     } catch {
-      setQuotes([]);
+      // ignore
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
-  // Reload whenever screen comes into focus
   useFocusEffect(
     useCallback(() => {
-      load();
-    }, [load]),
+      loadSaved();
+    }, [loadSaved]),
   );
 
-  const handleDelete = useCallback(
-    (id: string) => {
-      Alert.alert(
-        'Remove Quote',
-        'Remove this quote from your saved collection?',
-        [
-          {text: 'Cancel', style: 'cancel'},
-          {
-            text: 'Remove',
-            style: 'destructive',
-            onPress: async () => {
-              const updated = await unsaveQuote(id);
-              setQuotes(updated);
-            },
-          },
-        ],
-      );
-    },
-    [],
-  );
+  const handleDelete = (id: string) => {
+    Alert.alert('Remove Quote', 'Remove this quote from your saved list?', [
+      {text: 'Cancel', style: 'cancel'},
+      {
+        text: 'Remove',
+        style: 'destructive',
+        onPress: async () => {
+          await unsaveQuote(id);
+          setQuotes(prev => prev.filter(q => q._id !== id));
+        },
+      },
+    ]);
+  };
 
-  const handleShare = useCallback(async (quote: Quote) => {
+  const handleShare = async (quote: Quote) => {
     try {
       await shareQuote(quote);
     } catch {
       Alert.alert('Share failed', 'Could not open the share sheet.');
     }
-  }, []);
-
-  const styles = StyleSheet.create({
-    safeArea: {
-      flex: 1,
-      backgroundColor: colors.background,
-    },
-    header: {
-      paddingHorizontal: spacing[6],
-      paddingTop: spacing[6],
-      paddingBottom: spacing[5],
-      borderBottomWidth: 1,
-      borderBottomColor: colors.divider,
-    },
-    title: {
-      fontSize: typography.sizes['2xl'],
-      fontWeight: typography.weights.bold,
-      color: colors.textPrimary,
-      letterSpacing: typography.letterSpacing.tight,
-    },
-    subtitle: {
-      fontSize: typography.sizes.sm,
-      color: colors.textTertiary,
-      marginTop: spacing[1],
-      fontWeight: typography.weights.medium,
-    },
-    listContent: {
-      paddingTop: spacing[4],
-      paddingBottom: spacing[10],
-    },
-  });
+  };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
-      <StatusBar
-        barStyle={isDark ? 'light-content' : 'dark-content'}
-      />
-      <View style={styles.header}>
-        <Text style={styles.title}>Saved Quotes</Text>
-        {quotes.length > 0 && (
-          <Text style={styles.subtitle}>
-            {quotes.length} quote{quotes.length !== 1 ? 's' : ''} saved
+    <SafeAreaView style={[styles.safeArea, {backgroundColor: colors.background}]} edges={['top']}>
+      <StatusBar barStyle="dark-content" />
+
+      {/* Editorial Header */}
+      <View style={[styles.header, {borderBottomColor: colors.border}]}>
+        <View style={styles.headerTitleRow}>
+          <Text style={[styles.title, {color: colors.textPrimary}]}>
+            Saved Quotes
           </Text>
-        )}
+          {quotes.length > 0 && (
+            <Text style={[styles.countBadge, {color: colors.textTertiary}]}>
+              {quotes.length}
+            </Text>
+          )}
+        </View>
+        <Text style={[styles.subtitle, {color: colors.textSecondary}]}>
+          Your curated personal collection
+        </Text>
       </View>
-      <FlatList
-        data={quotes}
-        keyExtractor={item => item._id}
-        renderItem={({item}) => (
-          <SavedQuoteItem
-            quote={item}
-            onDelete={handleDelete}
-            onShare={handleShare}
-          />
-        )}
-        ListEmptyComponent={
-          <EmptyState
-            emoji="🌟"
-            title="No saved quotes yet"
-            subtitle="Save quotes that inspire you and they'll appear here."
-          />
-        }
-        contentContainerStyle={[
-          styles.listContent,
-          quotes.length === 0 && {flex: 1},
-        ]}
-        showsVerticalScrollIndicator={false}
-      />
+
+      {quotes.length === 0 && !isLoading ? (
+        <EmptyState
+          title="No saved quotes"
+          subtitle="Quotes you save will appear here for daily reflection."
+          actionText="Explore today's quote"
+          onActionPress={() => navigation.navigate('Home')}
+        />
+      ) : (
+        <FlatList
+          data={quotes}
+          keyExtractor={item => item._id}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          renderItem={({item}) => (
+            <SavedQuoteItem
+              quote={item}
+              onDelete={handleDelete}
+              onShare={handleShare}
+            />
+          )}
+        />
+      )}
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
+  header: {
+    paddingHorizontal: spacing[6],
+    paddingTop: spacing[4],
+    paddingBottom: spacing[4],
+    borderBottomWidth: 1,
+  },
+  headerTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: spacing[2],
+  },
+  title: {
+    fontSize: typography.sizes.xl,
+    fontWeight: typography.weights.bold,
+    letterSpacing: typography.letterSpacing.tight,
+  },
+  countBadge: {
+    fontSize: typography.sizes.sm,
+    fontWeight: typography.weights.medium,
+  },
+  subtitle: {
+    fontSize: typography.sizes.sm,
+    marginTop: 2,
+  },
+  listContent: {
+    paddingBottom: spacing[8],
+  },
+  itemContainer: {
+    paddingHorizontal: spacing[6],
+    paddingVertical: spacing[5],
+    borderBottomWidth: 1,
+  },
+  quoteText: {
+    fontSize: typography.sizes.base,
+    lineHeight: 23,
+    letterSpacing: -0.1,
+    marginBottom: spacing[3],
+  },
+  footerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  authorText: {
+    fontSize: typography.sizes.xs,
+    fontWeight: typography.weights.medium,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    gap: spacing[4],
+    alignItems: 'center',
+  },
+  iconButton: {
+    padding: 2,
+  },
+});

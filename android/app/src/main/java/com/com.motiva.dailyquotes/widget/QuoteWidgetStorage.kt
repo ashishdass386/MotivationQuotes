@@ -26,12 +26,35 @@ object QuoteWidgetStorage {
     private const val KEY_QUOTE_AUTHOR = "widget_quote_author"
     private const val KEY_THEME_INDEX = "widget_theme_index"
     private const val KEY_LAST_UPDATED = "widget_last_updated"
+    private const val KEY_SELECTED_TEMPLATE_ID = "selected_widget_template_id"
+    private const val KEY_SELECTED_LOCKSCREEN_TEMPLATE_ID = "selected_lockscreen_template_id"
+
+    const val DEFAULT_WIDGET_TEMPLATE_ID = "widget_midnight"
+    const val DEFAULT_LOCKSCREEN_TEMPLATE_ID = "lock_minimal"
 
     // In-memory cache of quotes loaded from assets
     private var cachedQuotes: List<Triple<String, String, String>>? = null
 
     private fun getPrefs(context: Context): SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+    fun setSelectedTemplateId(context: Context, templateId: String) {
+        getPrefs(context).edit().putString(KEY_SELECTED_TEMPLATE_ID, templateId).apply()
+        Log.d(TAG, "Saved selected widget template: $templateId")
+    }
+
+    fun getSelectedTemplateId(context: Context): String =
+        getPrefs(context).getString(KEY_SELECTED_TEMPLATE_ID, DEFAULT_WIDGET_TEMPLATE_ID)
+            ?: DEFAULT_WIDGET_TEMPLATE_ID
+
+    fun setSelectedLockScreenTemplateId(context: Context, templateId: String) {
+        getPrefs(context).edit().putString(KEY_SELECTED_LOCKSCREEN_TEMPLATE_ID, templateId).apply()
+        Log.d(TAG, "Saved selected lock screen template: $templateId")
+    }
+
+    fun getSelectedLockScreenTemplateId(context: Context): String =
+        getPrefs(context).getString(KEY_SELECTED_LOCKSCREEN_TEMPLATE_ID, DEFAULT_LOCKSCREEN_TEMPLATE_ID)
+            ?: DEFAULT_LOCKSCREEN_TEMPLATE_ID
 
     fun saveQuote(
         context: Context,
