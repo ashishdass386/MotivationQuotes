@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@android:color/transparent"
+    android:paddingStart="4dp"
+    android:paddingEnd="4dp"
+    android:paddingTop="2dp"
+    android:paddingBottom="4dp">
+
+    <!-- Tag: DAILY REFLECTION -->
+    <TextView
+        android:id="@+id/notif_tag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="DAILY REFLECTION"
+        android:textSize="9sp"
+        android:textStyle="bold"
+        android:textColor="?android:attr/textColorSecondary"
+        android:letterSpacing="0.12"
+        android:textAllCaps="true" />
+
+    <!-- Quote Content (Serif Typography) -->
+    <TextView
+        android:id="@+id/notif_quote"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="“Quote goes here”"
+        android:fontFamily="serif"
+        android:textSize="13sp"
+        android:textColor="?android:attr/textColorPrimary"
+        android:maxLines="2"
+        android:ellipsize="end" />
+
+    <!-- Author Citation -->
+    <TextView
+        android:id="@+id/notif_author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="— Author"
+        android:textSize="11sp"
+        android:textColor="?android:attr/textColorSecondary"
+        android:maxLines="1"
+        android:ellipsize="end" />
+
+</LinearLayout>

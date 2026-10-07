@@ -13,6 +13,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
 import android.util.Log
+import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -29,7 +30,7 @@ import java.util.Locale
 object DailyNotificationManager {
 
     private const val TAG = "DailyNotificationMgr"
-    const val CHANNEL_ID = "motiva_daily_quotes"
+    const val CHANNEL_ID = "motiva_daily_quotes_v2"
     private const val CHANNEL_NAME = "Daily Motivation Quotes"
     const val ACTION_DAILY_NOTIFICATION = "com.motiva.dailyquotes.ACTION_DAILY_NOTIFICATION"
 
@@ -110,12 +111,15 @@ object DailyNotificationManager {
             ).apply {
                 description = "Daily inspirational quote notification at 8:30 AM"
                 enableLights(true)
-                lightColor = Color.parseColor("#6366F1")
+                lightColor = Color.parseColor("#171717")
                 enableVibration(true)
                 setShowBadge(true)
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             }
             val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+            try {
+                manager?.deleteNotificationChannel("motiva_daily_quotes")
+            } catch (_: Exception) {}
             manager?.createNotificationChannel(channel)
         }
     }
@@ -266,37 +270,32 @@ object DailyNotificationManager {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
 
-            val lockTemplate = QuoteWidgetStorage.getSelectedLockScreenTemplateId(context)
-            val title = if (isTest) {
-                "✨ Motiva • Test Notification"
-            } else {
-                when (lockTemplate) {
-                    "lock_midnight" -> "✦ Midnight Motivation"
-                    "lock_elegant" -> "✦ Daily Wisdom"
-                    "lock_large_typography" -> "MOTIVA // DAILY DRIVE"
-                    "lock_dark_motivation" -> "🔥 Power & Purpose"
-                    "lock_daily_reminder" -> "☀️ 8:30 AM Reminder"
-                    "lock_focus" -> "✦ Daily Focus"
-                    "lock_calendar_style" -> "📅 Today's Reflection"
-                    "lock_soft_gradient" -> "🌅 Dawn Inspiration"
-                    "lock_aesthetic" -> "✦ Aesthetic Horizon"
-                    "lock_compact" -> "• Daily Quote •"
-                    else -> "☀️ Morning Motivation"
-                }
+            val tagText = if (isTest) "MOTIVA • DAILY REFLECTION" else "DAILY REFLECTION"
+            val title = if (isTest) "Daily Reflection (Preview)" else "Daily Reflection"
+            val quoteContent = "“${quote.content.trim()}”"
+            val authorName = "— ${quote.author.trim().ifBlank { "Anonymous" }}"
+
+            // Transparent background custom RemoteViews matching app's minimal editorial theme
+            val collapsedView = RemoteViews(context.packageName, R.layout.notification_quote_collapsed).apply {
+                setTextViewText(R.id.notif_tag, tagText)
+                setTextViewText(R.id.notif_quote, quoteContent)
+                setTextViewText(R.id.notif_author, authorName)
             }
-            val body = "“${quote.content}”"
+
+            val expandedView = RemoteViews(context.packageName, R.layout.notification_quote_expanded).apply {
+                setTextViewText(R.id.notif_tag, tagText)
+                setTextViewText(R.id.notif_quote, quoteContent)
+                setTextViewText(R.id.notif_author, authorName)
+            }
 
             val builder = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification_quote)
-                .setColor(Color.parseColor("#6366F1"))
+                .setColor(Color.parseColor("#171717"))
+                .setCustomContentView(collapsedView)
+                .setCustomBigContentView(expandedView)
+                .setStyle(NotificationCompat.DecoratedCustomViewStyle())
                 .setContentTitle(title)
-                .setContentText(body)
-                .setStyle(
-                    NotificationCompat.BigTextStyle()
-                        .setBigContentTitle(title)
-                        .bigText("“${quote.content}”\n\n— ${quote.author}")
-                        .setSummaryText(if (isTest) "Motiva Test" else "Daily Quote")
-                )
+                .setContentText("$quoteContent $authorName")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_REMINDER)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
