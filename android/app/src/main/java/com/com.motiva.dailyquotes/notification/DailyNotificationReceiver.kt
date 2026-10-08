@@ -15,9 +15,10 @@ class DailyNotificationReceiver : BroadcastReceiver() {
         Log.d(TAG, "DailyNotificationReceiver received intent: ${intent.action}")
 
         if (intent.action == DailyNotificationManager.ACTION_DAILY_NOTIFICATION) {
-            if (DailyNotificationManager.isNotificationEnabled(context)) {
-                // 1. Show the morning quote notification
-                DailyNotificationManager.showQuoteNotification(context, isTest = false)
+            val isTest = intent.getBooleanExtra("isTest", false)
+            if (DailyNotificationManager.isNotificationEnabled(context) || isTest) {
+                // 1. Show the quote notification
+                DailyNotificationManager.showQuoteNotification(context, isTest = isTest)
 
                 // 2. Schedule the next day's notification (8:30 AM)
                 val hour = DailyNotificationManager.getNotificationHour(context)

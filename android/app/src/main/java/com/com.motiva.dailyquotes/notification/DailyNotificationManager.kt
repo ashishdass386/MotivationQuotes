@@ -31,7 +31,7 @@ import java.util.Locale
 object DailyNotificationManager {
 
     private const val TAG = "DailyNotificationMgr"
-    const val CHANNEL_ID = "motiva_daily_quotes_v2"
+    const val CHANNEL_ID = "motiqo_daily_quotes_v4"
     private const val CHANNEL_NAME = "Motiqo Daily Motivation Quotes"
     const val ACTION_DAILY_NOTIFICATION = "com.motiva.dailyquotes.ACTION_DAILY_NOTIFICATION"
 
@@ -120,6 +120,8 @@ object DailyNotificationManager {
             val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
             try {
                 manager?.deleteNotificationChannel("motiva_daily_quotes")
+                manager?.deleteNotificationChannel("motiva_daily_quotes_v2")
+                manager?.deleteNotificationChannel("motiqo_daily_quotes_v3")
             } catch (_: Exception) {}
             manager?.createNotificationChannel(channel)
         }
@@ -276,15 +278,18 @@ object DailyNotificationManager {
             // Custom RemoteViews with ONLY the quote text
             val collapsedView = RemoteViews(context.packageName, R.layout.notification_quote_collapsed).apply {
                 setTextViewText(R.id.notif_quote, quoteContent)
+                setOnClickPendingIntent(R.id.notif_app_icon, contentPendingIntent)
+                setOnClickPendingIntent(R.id.notif_quote, contentPendingIntent)
             }
 
             val expandedView = RemoteViews(context.packageName, R.layout.notification_quote_expanded).apply {
                 setTextViewText(R.id.notif_quote, quoteContent)
+                setOnClickPendingIntent(R.id.notif_app_icon, contentPendingIntent)
+                setOnClickPendingIntent(R.id.notif_quote, contentPendingIntent)
             }
 
             val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_notification_quote)
-                .setColor(Color.parseColor("#171717"))
+                .setSmallIcon(R.drawable.ic_notification_motiqo)
                 .setCustomContentView(collapsedView)
                 .setCustomBigContentView(expandedView)
                 .setContentText(quoteContent)
