@@ -143,12 +143,12 @@ export async function sendTestNotification(): Promise<boolean> {
  */
 export async function getNotificationSettings(): Promise<NotificationSettings> {
   if (!DailyNotificationModule) {
-    return {enabled: false, hour: 8, minute: 30};
+    return {enabled: true, hour: 8, minute: 30};
   }
   try {
     return await DailyNotificationModule.getNotificationSettings();
   } catch {
-    return {enabled: false, hour: 8, minute: 30};
+    return {enabled: true, hour: 8, minute: 30};
   }
 }
 

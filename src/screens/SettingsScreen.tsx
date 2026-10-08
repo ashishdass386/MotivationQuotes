@@ -51,11 +51,11 @@ export function SettingsScreen({
     try {
       await sendTestNotification();
       Alert.alert(
-        'Test Notification Sent',
+        'Notification Sent',
         'Check your notification shade to preview the daily morning quote.',
       );
     } catch {
-      Alert.alert('Error', 'Could not trigger test notification.');
+      Alert.alert('Error', 'Could not trigger notification.');
     }
   };
 
@@ -126,7 +126,7 @@ export function SettingsScreen({
             }
           />
           <SettingRow
-            label="Send Test Notification"
+            label="Try Notification"
             description="Preview notification appearance"
             onPress={handleSendTestNotification}
             showDivider={false}
