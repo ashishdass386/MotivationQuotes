@@ -22,7 +22,7 @@ import {
   sendTestNotification,
 } from '../native/DailyNotification';
 
-const APP_VERSION = '1.0.1';
+const APP_VERSION = '1.0.2';
 
 export function SettingsScreen({
   navigation,
