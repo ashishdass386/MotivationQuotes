@@ -11,7 +11,7 @@ interface SectionHeaderProps {
   style?: object;
 }
 
-export function SectionHeader({
+function SectionHeaderBase({
   title,
   actionText,
   onActionPress,
@@ -34,6 +34,8 @@ export function SectionHeader({
     </View>
   );
 }
+
+export const SectionHeader = React.memo(SectionHeaderBase);
 
 const styles = StyleSheet.create({
   container: {

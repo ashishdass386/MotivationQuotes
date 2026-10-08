@@ -29,6 +29,7 @@ export function useDailyQuote(): UseDailyQuoteResult {
   const [isSaved, setIsSaved] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const isRefreshing = useRef(false);
+  const isLoadingRef = useRef(false);
 
   const checkSavedStatus = useCallback(async (q: Quote) => {
     try {
@@ -40,24 +41,27 @@ export function useDailyQuote(): UseDailyQuoteResult {
   }, []);
 
   const loadDailyQuote = useCallback(async () => {
-    if (loadState === 'loading') {
+    if (isLoadingRef.current) {
       return;
     }
+    isLoadingRef.current = true;
     setLoadState('loading');
     setErrorMessage(null);
     try {
       const q = await getDailyQuoteForToday();
       setQuote(q);
       await checkSavedStatus(q);
-      // Update widget whenever we load a quote
-      await saveQuoteToWidget(q._id, q.content, q.author);
+      // Update native widget asynchronously without blocking UI thread
+      saveQuoteToWidget(q._id, q.content, q.author).catch(() => {});
     } catch (err) {
       setErrorMessage('Unable to load quote. Please try again.');
       setLoadState('error');
+      isLoadingRef.current = false;
       return;
     }
     setLoadState('idle');
-  }, [loadState, checkSavedStatus]);
+    isLoadingRef.current = false;
+  }, [checkSavedStatus]);
 
   const refreshQuote = useCallback(async () => {
     if (isRefreshing.current) {
@@ -70,7 +74,7 @@ export function useDailyQuote(): UseDailyQuoteResult {
       const q = await fetchAndSaveNewQuote();
       setQuote(q);
       await checkSavedStatus(q);
-      await saveQuoteToWidget(q._id, q.content, q.author);
+      saveQuoteToWidget(q._id, q.content, q.author).catch(() => {});
     } catch (err) {
       setErrorMessage('Could not fetch a new quote. Check your connection.');
     } finally {
@@ -99,8 +103,7 @@ export function useDailyQuote(): UseDailyQuoteResult {
   // Load on mount
   useEffect(() => {
     loadDailyQuote();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loadDailyQuote]);
 
   return {
     quote,

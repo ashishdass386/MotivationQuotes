@@ -16,7 +16,7 @@ interface QuoteCardProps {
   animationKey?: string | number;
 }
 
-export function QuoteCard({quote, animationKey}: QuoteCardProps): React.JSX.Element {
+function QuoteCardBase({quote, animationKey}: QuoteCardProps): React.JSX.Element {
   const {colors} = useTheme();
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -85,6 +85,8 @@ export function QuoteCard({quote, animationKey}: QuoteCardProps): React.JSX.Elem
     </Animated.View>
   );
 }
+
+export const QuoteCard = React.memo(QuoteCardBase);
 
 const styles = StyleSheet.create({
   container: {

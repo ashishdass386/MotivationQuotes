@@ -23,7 +23,7 @@ const FALLBACK_QUOTE: Quote = {
   author: 'Eleanor Roosevelt',
 };
 
-export function TemplateRenderer({
+function TemplateRendererBase({
   template,
   quote,
   compact = false,
@@ -573,3 +573,5 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+
+export const TemplateRenderer = React.memo(TemplateRendererBase);

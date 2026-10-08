@@ -3,23 +3,32 @@ import type {DailyQuoteRecord} from '../models/Quote';
 
 const DAILY_QUOTE_KEY = '@motiva/daily_quote';
 
+let memoryQuoteRecord: DailyQuoteRecord | null = null;
+
 export async function saveDailyQuote(record: DailyQuoteRecord): Promise<void> {
+  memoryQuoteRecord = record;
   await AsyncStorage.setItem(DAILY_QUOTE_KEY, JSON.stringify(record));
 }
 
 export async function getDailyQuote(): Promise<DailyQuoteRecord | null> {
+  if (memoryQuoteRecord) {
+    return memoryQuoteRecord;
+  }
   try {
     const raw = await AsyncStorage.getItem(DAILY_QUOTE_KEY);
     if (!raw) {
       return null;
     }
-    return JSON.parse(raw) as DailyQuoteRecord;
+    const parsed = JSON.parse(raw) as DailyQuoteRecord;
+    memoryQuoteRecord = parsed;
+    return parsed;
   } catch {
     return null;
   }
 }
 
 export async function clearDailyQuote(): Promise<void> {
+  memoryQuoteRecord = null;
   await AsyncStorage.removeItem(DAILY_QUOTE_KEY);
 }
 

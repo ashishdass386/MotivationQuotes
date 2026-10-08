@@ -14,7 +14,7 @@ interface SettingRowProps {
   showDivider?: boolean;
 }
 
-export function SettingRow({
+function SettingRowBase({
   label,
   description,
   value,
@@ -68,6 +68,8 @@ export function SettingRow({
     </TouchableOpacity>
   );
 }
+
+export const SettingRow = React.memo(SettingRowBase);
 
 const styles = StyleSheet.create({
   row: {

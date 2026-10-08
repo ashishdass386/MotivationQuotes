@@ -23,15 +23,17 @@ import {
 import {shareQuote} from '../utils/shareUtils';
 import type {Quote} from '../models/Quote';
 
-function SavedQuoteItem({
-  quote,
-  onDelete,
-  onShare,
-}: {
+interface SavedQuoteItemProps {
   quote: Quote;
   onDelete: (id: string) => void;
   onShare: (quote: Quote) => void;
-}): React.JSX.Element {
+}
+
+const SavedQuoteItem = React.memo(function SavedQuoteItem({
+  quote,
+  onDelete,
+  onShare,
+}: SavedQuoteItemProps): React.JSX.Element {
   const {colors} = useTheme();
 
   const quoteFontFamily = Platform.select({
@@ -81,7 +83,7 @@ function SavedQuoteItem({
       </View>
     </View>
   );
-}
+});
 
 export function SavedQuotesScreen({
   navigation,
@@ -109,7 +111,7 @@ export function SavedQuotesScreen({
     }, [loadSaved]),
   );
 
-  const handleDelete = (id: string) => {
+  const handleDelete = useCallback((id: string) => {
     Alert.alert('Remove Quote', 'Remove this quote from your saved list?', [
       {text: 'Cancel', style: 'cancel'},
       {
@@ -121,18 +123,33 @@ export function SavedQuotesScreen({
         },
       },
     ]);
-  };
+  }, []);
 
-  const handleShare = async (quote: Quote) => {
+  const handleShare = useCallback(async (quote: Quote) => {
     try {
       await shareQuote(quote);
     } catch {
       Alert.alert('Share failed', 'Could not open the share sheet.');
     }
-  };
+  }, []);
+
+  const keyExtractor = useCallback((item: Quote) => item._id, []);
+
+  const renderItem = useCallback(
+    ({item}: {item: Quote}) => (
+      <SavedQuoteItem
+        quote={item}
+        onDelete={handleDelete}
+        onShare={handleShare}
+      />
+    ),
+    [handleDelete, handleShare],
+  );
 
   return (
-    <SafeAreaView style={[styles.safeArea, {backgroundColor: colors.background}]} edges={['top']}>
+    <SafeAreaView
+      style={[styles.safeArea, {backgroundColor: colors.background}]}
+      edges={['top']}>
       <StatusBar barStyle="dark-content" />
 
       {/* Editorial Header */}
@@ -162,16 +179,14 @@ export function SavedQuotesScreen({
       ) : (
         <FlatList
           data={quotes}
-          keyExtractor={item => item._id}
+          keyExtractor={keyExtractor}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
-          renderItem={({item}) => (
-            <SavedQuoteItem
-              quote={item}
-              onDelete={handleDelete}
-              onShare={handleShare}
-            />
-          )}
+          renderItem={renderItem}
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          windowSize={5}
+          removeClippedSubviews={Platform.OS === 'android'}
         />
       )}
     </SafeAreaView>

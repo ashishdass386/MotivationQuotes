@@ -10,7 +10,7 @@ interface WidgetPreviewCardProps {
   compact?: boolean;
 }
 
-export function WidgetPreviewCard({
+function WidgetPreviewCardBase({
   template,
   quote,
   compact = false,
@@ -40,3 +40,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+
+export const WidgetPreviewCard = React.memo(WidgetPreviewCardBase);

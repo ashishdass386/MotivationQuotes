@@ -48,7 +48,11 @@
       <!-- Daily Notification Receiver -->
       <receiver
         android:name=".notification.DailyNotificationReceiver"
-        android:exported="false" />
+        android:exported="true">
+        <intent-filter>
+            <action android:name="com.motiva.dailyquotes.ACTION_DAILY_NOTIFICATION" />
+        </intent-filter>
+      </receiver>
 
       <!-- Boot Receiver to reschedule notification alarm on reboot -->
       <receiver

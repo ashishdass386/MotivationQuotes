@@ -2,48 +2,35 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
     android:background="@android:color/transparent"
     android:paddingStart="4dp"
-    android:paddingEnd="4dp"
-    android:paddingTop="2dp"
-    android:paddingBottom="4dp">
+    android:paddingEnd="8dp"
+    android:paddingTop="6dp"
+    android:paddingBottom="6dp">
 
-    <!-- Tag: DAILY REFLECTION -->
-    <TextView
-        android:id="@+id/notif_tag"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="DAILY REFLECTION"
-        android:textSize="9sp"
-        android:textStyle="bold"
-        android:textColor="?android:attr/textColorSecondary"
-        android:letterSpacing="0.12"
-        android:textAllCaps="true" />
+    <!-- App Icon on the LEFT -->
+    <ImageView
+        android:id="@+id/notif_app_icon"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="12dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_launcher" />
 
-    <!-- Quote Content (Serif Typography) -->
+    <!-- ONLY The Quote -->
     <TextView
         android:id="@+id/notif_quote"
-        android:layout_width="match_parent"
+        style="@style/TextAppearance.Compat.Notification.Title"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
+        android:layout_weight="1"
         android:text="“Quote goes here”"
         android:fontFamily="serif"
-        android:textSize="13sp"
-        android:textColor="?android:attr/textColorPrimary"
-        android:maxLines="2"
-        android:ellipsize="end" />
-
-    <!-- Author Citation -->
-    <TextView
-        android:id="@+id/notif_author"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:text="— Author"
-        android:textSize="11sp"
-        android:textColor="?android:attr/textColorSecondary"
-        android:maxLines="1"
+        android:textSize="14sp"
+        android:lineSpacingExtra="2dp"
+        android:maxLines="3"
         android:ellipsize="end" />
 
 </LinearLayout>

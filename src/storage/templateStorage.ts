@@ -12,17 +12,27 @@ const KEY_FAVORITE_TEMPLATES = '@motiva/favorite_template_ids';
 export const DEFAULT_WIDGET_ID = 'widget_midnight';
 export const DEFAULT_LOCKSCREEN_ID = 'lock_minimal';
 
+let memoryWidgetId: string | null = null;
+let memoryLockId: string | null = null;
+let memoryFavorites: string[] | null = null;
+
 /**
  * Get active widget template ID.
  */
 export async function getSelectedWidgetTemplateId(): Promise<string> {
+  if (memoryWidgetId) {
+    return memoryWidgetId;
+  }
   try {
     const saved = await AsyncStorage.getItem(KEY_WIDGET_TEMPLATE);
     if (saved) {
+      memoryWidgetId = saved;
       return saved;
     }
     const nativeVal = await getNativeWidgetTemplate();
-    return nativeVal || DEFAULT_WIDGET_ID;
+    const result = nativeVal || DEFAULT_WIDGET_ID;
+    memoryWidgetId = result;
+    return result;
   } catch {
     return DEFAULT_WIDGET_ID;
   }
@@ -32,9 +42,9 @@ export async function getSelectedWidgetTemplateId(): Promise<string> {
  * Sets the active widget template and updates the native Android widget immediately.
  */
 export async function setSelectedWidgetTemplateId(id: string): Promise<void> {
+  memoryWidgetId = id;
   try {
     await AsyncStorage.setItem(KEY_WIDGET_TEMPLATE, id);
-    // Sync with native Android widget
     await setNativeWidgetTemplate(id);
   } catch (err) {
     console.warn('[templateStorage] Failed to save widget template:', err);
@@ -45,9 +55,14 @@ export async function setSelectedWidgetTemplateId(id: string): Promise<void> {
  * Get active lock screen template ID.
  */
 export async function getSelectedLockScreenTemplateId(): Promise<string> {
+  if (memoryLockId) {
+    return memoryLockId;
+  }
   try {
     const saved = await AsyncStorage.getItem(KEY_LOCKSCREEN_TEMPLATE);
-    return saved || DEFAULT_LOCKSCREEN_ID;
+    const result = saved || DEFAULT_LOCKSCREEN_ID;
+    memoryLockId = result;
+    return result;
   } catch {
     return DEFAULT_LOCKSCREEN_ID;
   }
@@ -57,6 +72,7 @@ export async function getSelectedLockScreenTemplateId(): Promise<string> {
  * Sets active lock screen template and syncs with native storage for notifications.
  */
 export async function setSelectedLockScreenTemplateId(id: string): Promise<void> {
+  memoryLockId = id;
   try {
     await AsyncStorage.setItem(KEY_LOCKSCREEN_TEMPLATE, id);
     await setNativeLockScreenTemplate(id);
@@ -69,10 +85,16 @@ export async function setSelectedLockScreenTemplateId(id: string): Promise<void>
  * Get favorited template IDs.
  */
 export async function getFavoriteTemplateIds(): Promise<string[]> {
+  if (memoryFavorites) {
+    return memoryFavorites;
+  }
   try {
     const raw = await AsyncStorage.getItem(KEY_FAVORITE_TEMPLATES);
-    return raw ? (JSON.parse(raw) as string[]) : [];
+    const list = raw ? (JSON.parse(raw) as string[]) : [];
+    memoryFavorites = list;
+    return list;
   } catch {
+    memoryFavorites = [];
     return [];
   }
 }
@@ -85,7 +107,8 @@ export async function toggleFavoriteTemplate(id: string): Promise<boolean> {
     const favs = await getFavoriteTemplateIds();
     const isFav = favs.includes(id);
     const updated = isFav ? favs.filter(item => item !== id) : [...favs, id];
-    await AsyncStorage.setItem(KEY_FAVORITE_TEMPLATES, JSON.stringify(updated));
+    memoryFavorites = updated;
+    AsyncStorage.setItem(KEY_FAVORITE_TEMPLATES, JSON.stringify(updated)).catch(() => {});
     return !isFav;
   } catch {
     return false;
@@ -96,12 +119,11 @@ export async function toggleFavoriteTemplate(id: string): Promise<boolean> {
  * Check if a template is favorited.
  */
 export async function isTemplateFavorite(id: string): Promise<boolean> {
-  try {
-    const favs = await getFavoriteTemplateIds();
-    return favs.includes(id);
-  } catch {
-    return false;
+  if (memoryFavorites) {
+    return memoryFavorites.includes(id);
   }
+  const favs = await getFavoriteTemplateIds();
+  return favs.includes(id);
 }
 
 /**

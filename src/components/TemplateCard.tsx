@@ -18,7 +18,7 @@ interface TemplateCardProps {
   onToggleFavorite: () => void;
 }
 
-export function TemplateCard({
+function TemplateCardBase({
   template,
   quote,
   isActive = false,
@@ -166,3 +166,5 @@ const styles = StyleSheet.create({
     padding: spacing[1],
   },
 });
+
+export const TemplateCard = React.memo(TemplateCardBase);

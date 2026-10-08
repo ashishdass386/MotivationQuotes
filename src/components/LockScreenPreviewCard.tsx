@@ -10,7 +10,7 @@ interface LockScreenPreviewCardProps {
   compact?: boolean;
 }
 
-export function LockScreenPreviewCard({
+function LockScreenPreviewCardBase({
   template,
   quote,
   compact = false,
@@ -208,3 +208,5 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
 });
+
+export const LockScreenPreviewCard = React.memo(LockScreenPreviewCardBase);

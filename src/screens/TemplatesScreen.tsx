@@ -4,9 +4,11 @@ import {
   Text,
   StyleSheet,
   ScrollView,
+  FlatList,
   TouchableOpacity,
   TextInput,
   StatusBar,
+  Platform,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useTheme} from '../theme/ThemeContext';
@@ -19,6 +21,7 @@ import {
   LOCKSCREEN_CATEGORIES,
   type TemplateType,
   type TemplateFilter,
+  type QuoteTemplate,
 } from '../templates/templateTypes';
 import {
   searchAndFilterTemplates,
@@ -75,19 +78,32 @@ export function TemplatesScreen({
     return unsubscribe;
   }, [navigation, loadState]);
 
-  const handleTypeChange = (type: TemplateType) => {
+  const handleTypeChange = useCallback((type: TemplateType) => {
     setActiveType(type);
     setSelectedCategory('All');
-  };
+  }, []);
 
-  const handleToggleFavorite = async (id: string) => {
+  const handleToggleFavorite = useCallback(async (id: string) => {
     await toggleFavoriteTemplate(id);
     const updated = await getFavoriteTemplateIds();
     setFavorites(updated);
-  };
+  }, []);
 
-  const categories =
-    activeType === 'widget' ? WIDGET_CATEGORIES : LOCKSCREEN_CATEGORIES;
+  const handleCardPress = useCallback(
+    (id: string) => {
+      navigation.navigate('TemplatePreview', {
+        templateId: id,
+      });
+    },
+    [navigation],
+  );
+
+  const categories = useMemo(
+    () => (activeType === 'widget' ? WIDGET_CATEGORIES : LOCKSCREEN_CATEGORIES),
+    [activeType],
+  );
+
+  const favoritesSet = useMemo(() => new Set(favorites), [favorites]);
 
   const filteredTemplates = useMemo(() => {
     return searchAndFilterTemplates({
@@ -99,25 +115,9 @@ export function TemplatesScreen({
     });
   }, [activeType, selectedCategory, searchQuery, filterMode, favorites]);
 
-  return (
-    <SafeAreaView
-      style={[styles.safeArea, {backgroundColor: colors.background}]}
-      edges={['top']}>
-      <StatusBar barStyle="dark-content" />
-
-      {/* Screen Header */}
-      <View style={[styles.header, {borderBottomColor: colors.border}]}>
-        <Text style={[styles.headerTitle, {color: colors.textPrimary}]}>
-          Templates
-        </Text>
-        <Text style={[styles.headerSubtitle, {color: colors.textSecondary}]}>
-          Find a style that feels like you
-        </Text>
-      </View>
-
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}>
+  const renderHeader = useCallback(() => {
+    return (
+      <View>
         {/* Mode Selector: Widgets vs Lock Screen */}
         <View style={styles.typeSelectorWrapper}>
           <View
@@ -285,42 +285,97 @@ export function TemplatesScreen({
             {filteredTemplates.length} styles
           </Text>
         </View>
+      </View>
+    );
+  }, [
+    colors,
+    activeType,
+    searchQuery,
+    filterMode,
+    categories,
+    selectedCategory,
+    filteredTemplates.length,
+    handleTypeChange,
+  ]);
 
-        {/* 2-Column Template Grid */}
-        {filteredTemplates.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Text style={[styles.emptyTitle, {color: colors.textPrimary}]}>
-              No templates found
-            </Text>
-            <Text style={[styles.emptySubtitle, {color: colors.textSecondary}]}>
-              Try searching with another keyword.
-            </Text>
-          </View>
-        ) : (
-          <View style={styles.twoColumnGrid}>
-            {filteredTemplates.map(item => (
-              <View key={item.id} style={styles.gridColumn}>
-                <TemplateCard
-                  template={item}
-                  quote={quote}
-                  isActive={
-                    item.type === 'widget'
-                      ? activeWidgetId === item.id
-                      : activeLockScreenId === item.id
-                  }
-                  isFavorite={favorites.includes(item.id)}
-                  onPress={() =>
-                    navigation.navigate('TemplatePreview', {
-                      templateId: item.id,
-                    })
-                  }
-                  onToggleFavorite={() => handleToggleFavorite(item.id)}
-                />
-              </View>
-            ))}
-          </View>
-        )}
-      </ScrollView>
+  const renderEmpty = useCallback(() => {
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={[styles.emptyTitle, {color: colors.textPrimary}]}>
+          No templates found
+        </Text>
+        <Text style={[styles.emptySubtitle, {color: colors.textSecondary}]}>
+          Try searching with another keyword.
+        </Text>
+      </View>
+    );
+  }, [colors]);
+
+  const renderTemplateItem = useCallback(
+    ({item}: {item: QuoteTemplate}) => {
+      const isActive =
+        item.type === 'widget'
+          ? activeWidgetId === item.id
+          : activeLockScreenId === item.id;
+      const isFavorite = favoritesSet.has(item.id);
+
+      return (
+        <View style={styles.gridColumn}>
+          <TemplateCard
+            template={item}
+            quote={quote}
+            isActive={isActive}
+            isFavorite={isFavorite}
+            onPress={() => handleCardPress(item.id)}
+            onToggleFavorite={() => handleToggleFavorite(item.id)}
+          />
+        </View>
+      );
+    },
+    [
+      activeWidgetId,
+      activeLockScreenId,
+      favoritesSet,
+      quote,
+      handleCardPress,
+      handleToggleFavorite,
+    ],
+  );
+
+  const keyExtractor = useCallback((item: QuoteTemplate) => item.id, []);
+
+  return (
+    <SafeAreaView
+      style={[styles.safeArea, {backgroundColor: colors.background}]}
+      edges={['top']}>
+      <StatusBar barStyle="dark-content" />
+
+      {/* Screen Header */}
+      <View style={[styles.header, {borderBottomColor: colors.border}]}>
+        <Text style={[styles.headerTitle, {color: colors.textPrimary}]}>
+          Templates
+        </Text>
+        <Text style={[styles.headerSubtitle, {color: colors.textSecondary}]}>
+          Find a style that feels like you
+        </Text>
+      </View>
+
+      {/* Virtualized 120 FPS 2-Column Grid */}
+      <FlatList
+        data={filteredTemplates}
+        keyExtractor={keyExtractor}
+        renderItem={renderTemplateItem}
+        numColumns={2}
+        columnWrapperStyle={styles.columnWrapper}
+        ListHeaderComponent={renderHeader}
+        ListEmptyComponent={renderEmpty}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        initialNumToRender={8}
+        maxToRenderPerBatch={8}
+        windowSize={5}
+        removeClippedSubviews={Platform.OS === 'android'}
+      />
     </SafeAreaView>
   );
 }
@@ -434,14 +489,12 @@ const styles = StyleSheet.create({
   gridCount: {
     fontSize: typography.sizes.xs,
   },
-  twoColumnGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  columnWrapper: {
     paddingHorizontal: spacing[4],
+    justifyContent: 'space-between',
   },
   gridColumn: {
-    width: '50%',
-    paddingHorizontal: spacing[2],
+    width: '48.5%',
   },
   emptyContainer: {
     alignItems: 'center',

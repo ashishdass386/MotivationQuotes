@@ -271,43 +271,23 @@ object DailyNotificationManager {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
 
-            val tagText = if (isTest) "MOTIQO • DAILY REFLECTION" else "MOTIQO • DAILY REFLECTION"
-            val title = if (isTest) "Motiqo Daily Reflection (Preview)" else "Motiqo Daily Reflection"
             val quoteContent = "“${quote.content.trim()}”"
-            val authorName = "— ${quote.author.trim().ifBlank { "Anonymous" }}"
 
-            // Transparent background custom RemoteViews matching app's minimal editorial theme
+            // Custom RemoteViews with ONLY the quote text
             val collapsedView = RemoteViews(context.packageName, R.layout.notification_quote_collapsed).apply {
-                setTextViewText(R.id.notif_tag, tagText)
                 setTextViewText(R.id.notif_quote, quoteContent)
-                setTextViewText(R.id.notif_author, authorName)
             }
 
             val expandedView = RemoteViews(context.packageName, R.layout.notification_quote_expanded).apply {
-                setTextViewText(R.id.notif_tag, tagText)
                 setTextViewText(R.id.notif_quote, quoteContent)
-                setTextViewText(R.id.notif_author, authorName)
-            }
-
-            val largeIconBitmap = try {
-                BitmapFactory.decodeResource(context.resources, R.mipmap.ic_launcher)
-            } catch (_: Exception) {
-                null
             }
 
             val builder = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification_quote)
-                .apply {
-                    if (largeIconBitmap != null) {
-                        setLargeIcon(largeIconBitmap)
-                    }
-                }
                 .setColor(Color.parseColor("#171717"))
                 .setCustomContentView(collapsedView)
                 .setCustomBigContentView(expandedView)
-                .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-                .setContentTitle(title)
-                .setContentText("$quoteContent $authorName")
+                .setContentText(quoteContent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_REMINDER)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
